@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import * as FiIcons from 'react-icons/fi';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../context/FirebaseAuthContext';
 import SafeIcon from '../../common/SafeIcon';
 
 const { FiMail, FiLock, FiUser, FiArrowRight, FiAlertCircle } = FiIcons;
@@ -16,8 +16,9 @@ const SignUp = ({ onToggleForm }) => {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [passwordStrength, setPasswordStrength] = useState(0);
-  
+
   const { signUp } = useAuth();
   
   const handleChange = (e) => {
@@ -56,14 +57,7 @@ const SignUp = ({ onToggleForm }) => {
       const userData = {
         first_name: formData.firstName,
         last_name: formData.lastName,
-        email: formData.email,
-        avatar_url: null,
-        goals: [],
-        health_metrics: {
-          avg_hrv: 0,
-          avg_steps: 0,
-          streak: 0
-        }
+        goals: []
       };
       
       const { data, error } = await signUp(formData.email, formData.password, userData);
@@ -72,9 +66,12 @@ const SignUp = ({ onToggleForm }) => {
       
       // Registration successful
       console.log('Registration successful', data);
+      setSuccess('Account created successfully! Please check your email to confirm your account.');
+      setError('');
     } catch (error) {
       console.error('Registration error:', error);
       setError(error.message || 'Failed to create account. Please try again.');
+      setSuccess('');
     } finally {
       setLoading(false);
     }

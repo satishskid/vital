@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import * as FiIcons from 'react-icons/fi';
 import SafeIcon from '../../common/SafeIcon';
 
-const { FiHome, FiActivity, FiUsers, FiUser, FiHeart, FiBookOpen, FiBell, FiEdit3 } = FiIcons;
+const { FiHome, FiActivity, FiUsers, FiUser, FiHeart, FiBookOpen, FiBell, FiEdit3, FiSmartphone, FiTrendingUp } = FiIcons;
 
 const Navigation = () => {
   const location = useLocation();
@@ -13,10 +13,11 @@ const Navigation = () => {
   const navItems = [
     { path: '/', icon: FiHome, label: 'Home' },
     { path: '/manual-entry', icon: FiEdit3, label: 'Log Data' },
-    { path: '/hrv', icon: FiActivity, label: 'HRV' },
+    { path: '/health-apps', icon: FiSmartphone, label: 'Apps' },
+    { path: '/camera-hrv', icon: FiActivity, label: 'HRV' },
     { path: '/mind-breath', icon: FiHeart, label: 'Mind' },
     { path: '/social', icon: FiUsers, label: 'Social' },
-    { path: '/science', icon: FiBookOpen, label: 'Science' },
+    { path: '/activity', icon: FiTrendingUp, label: 'Activity' },
     { path: '/profile', icon: FiUser, label: 'Profile' }
   ];
 

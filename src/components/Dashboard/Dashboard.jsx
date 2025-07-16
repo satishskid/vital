@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import * as FiIcons from 'react-icons/fi';
@@ -7,25 +7,89 @@ import ProgressRing from './ProgressRing';
 import PeerTicker from './PeerTicker';
 import PeerAvatars from './PeerAvatars';
 import QuickActions from './QuickActions';
+import VitalityOrbHome from '../VitalityOrb/VitalityOrbHome';
+import HealthDataService from '../../services/HealthDataService';
+import { useAuth } from '../../context/FirebaseAuthContext';
 
-const { FiSun, FiMoon, FiInfo, FiTrendingUp, FiBookOpen } = FiIcons;
+const { FiSun, FiMoon, FiInfo, FiTrendingUp, FiBookOpen, FiSettings } = FiIcons;
 
 const Dashboard = ({ showWhyCard }) => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [greeting, setGreeting] = useState('');
+  const [isVitalityTheme, setIsVitalityTheme] = useState(false);
   const [dailyProgress, setDailyProgress] = useState({
-    movement: 65,
-    nutrition: 40,
-    mindfulness: 80
+    movement: 0,
+    nutrition: 0,
+    mindfulness: 0
   });
   const [todayStats, setTodayStats] = useState({
-    steps: 7842,
-    hrv: 'Ready',
-    lastMeal: '2h ago',
-    mood: 'Energized'
+    steps: 0,
+    hrv: 'No data',
+    lastMeal: 'No data',
+    mood: 'No data'
   });
+  const [healthData, setHealthData] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const healthServiceRef = useRef(null);
+
+  // ALL HOOKS MUST BE CALLED BEFORE ANY CONDITIONAL RETURNS
+
+  // Initialize health data service and load data
+  useEffect(() => {
+    if (user) {
+      healthServiceRef.current = new HealthDataService(user.uid);
+      loadHealthData();
+    }
+  }, [user]);
+
+  // Load theme preference from localStorage
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('vita-home-theme');
+    if (savedTheme === 'vitality') {
+      setIsVitalityTheme(true);
+    }
+  }, []);
+
+  // Load real health data from Firebase
+  const loadHealthData = async () => {
+    if (!healthServiceRef.current) return;
+
+    try {
+      setLoading(true);
+
+      // Get today's stats and health data for vitality
+      const [stats, vitalityData] = await Promise.all([
+        healthServiceRef.current.getTodayStats(),
+        healthServiceRef.current.getHealthDataForVitality()
+      ]);
+
+      // Update today's stats
+      setTodayStats({
+        steps: stats.steps || 0,
+        hrv: stats.hrv?.status || 'No data',
+        lastMeal: stats.lastMeal || 'No data',
+        mood: getMoodText(stats.mood) || 'No data'
+      });
+
+      // Calculate daily progress from stats
+      setDailyProgress({
+        movement: calculateMovementProgress(stats),
+        nutrition: calculateNutritionProgress(stats),
+        mindfulness: calculateMindfulnessProgress(stats)
+      });
+
+      // Set health data for vitality orb
+      setHealthData(vitalityData);
+
+    } catch (error) {
+      console.error('Error loading health data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -45,6 +109,43 @@ const Dashboard = ({ showWhyCard }) => {
       setGreeting('Good Evening');
     }
   }, [currentTime]);
+
+  // Helper functions for data processing
+  const getMoodText = (mood) => {
+    if (!mood) return null;
+    const moodMap = {
+      1: 'Poor',
+      2: 'Low',
+      3: 'Okay',
+      4: 'Good',
+      5: 'Excellent'
+    };
+    return moodMap[mood] || 'Unknown';
+  };
+
+  const calculateMovementProgress = (stats) => {
+    const steps = stats.steps || 0;
+    const activeMinutes = stats.activeMinutes || 0;
+    // Progress based on 10,000 steps and 30 active minutes
+    const stepProgress = Math.min((steps / 10000) * 70, 70);
+    const activeProgress = Math.min((activeMinutes / 30) * 30, 30);
+    return Math.round(stepProgress + activeProgress);
+  };
+
+  const calculateNutritionProgress = (stats) => {
+    const meals = stats.nutrition?.meals || 0;
+    const water = stats.nutrition?.water || 0;
+    // Progress based on 3 meals and 8 glasses of water
+    const mealProgress = Math.min((meals / 3) * 60, 60);
+    const waterProgress = Math.min((water / 8) * 40, 40);
+    return Math.round(mealProgress + waterProgress);
+  };
+
+  const calculateMindfulnessProgress = (stats) => {
+    const sessions = stats.mindfulness?.sessions || 0;
+    // Progress based on 1 session = 100%
+    return Math.min(sessions * 100, 100);
+  };
 
   const handleHRVInfo = () => {
     showWhyCard({
@@ -70,6 +171,58 @@ const Dashboard = ({ showWhyCard }) => {
     });
   };
 
+  // Helper functions for theme toggle
+  const toggleTheme = () => {
+    const newTheme = !isVitalityTheme;
+    setIsVitalityTheme(newTheme);
+    localStorage.setItem('vita-home-theme', newTheme ? 'vitality' : 'standard');
+  };
+
+  // Prepare health data for Vitality Orb (now uses real data)
+  const getHealthDataForOrb = () => {
+    return healthData || {
+      sleep: { duration: 420, quality: 75 },
+      hrv: { readiness: 30 },
+      activity: { steps: 0, activeMinutes: 0 },
+      mindfulness: { sessions: 0 },
+      nutrition: { mealsLogged: 0, waterIntake: 0 },
+      mood: 3,
+      social: { socialWellnessScore: 50 }
+    };
+  };
+
+  // Refresh data function
+  const refreshData = () => {
+    if (healthServiceRef.current) {
+      loadHealthData();
+    }
+  };
+
+  // CONDITIONAL RENDERING - If Vitality theme is enabled, render the Vitality Orb home
+  if (isVitalityTheme) {
+    return (
+      <VitalityOrbHome
+        healthData={getHealthDataForOrb()}
+        onThemeToggle={toggleTheme}
+        onRefresh={refreshData}
+        loading={loading}
+      />
+    );
+  }
+
+  // Show loading state
+  if (loading && !healthData) {
+    return (
+      <div className="pb-20 min-h-screen bg-gradient-to-br from-emerald-50 to-blue-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-emerald-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading your health data...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // STANDARD DASHBOARD RENDERING
   return (
     <div className="pb-20 min-h-screen bg-gradient-to-br from-emerald-50 to-blue-50">
       {/* Header */}
@@ -84,12 +237,22 @@ const Dashboard = ({ showWhyCard }) => {
             <h1 className="text-2xl font-bold text-gray-800">{greeting}</h1>
             <p className="text-gray-600">How are you feeling today?</p>
           </div>
-          <div className="text-right">
-            <div className="text-3xl font-light text-gray-800">
-              {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-            </div>
-            <div className="text-sm text-gray-500">
-              {currentTime.toLocaleDateString([], { weekday: 'long', month: 'short', day: 'numeric' })}
+          <div className="flex items-center space-x-4">
+            <motion.button
+              onClick={toggleTheme}
+              className="p-2 bg-purple-50 rounded-full hover:bg-purple-100 transition-colors"
+              whileTap={{ scale: 0.95 }}
+              title="Switch to Vitality Orb theme"
+            >
+              <SafeIcon icon={FiSettings} className="w-5 h-5 text-purple-600" />
+            </motion.button>
+            <div className="text-right">
+              <div className="text-3xl font-light text-gray-800">
+                {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              </div>
+              <div className="text-sm text-gray-500">
+                {currentTime.toLocaleDateString([], { weekday: 'long', month: 'short', day: 'numeric' })}
+              </div>
             </div>
           </div>
         </div>
@@ -210,7 +373,7 @@ const Dashboard = ({ showWhyCard }) => {
 
       {/* Peer Activity */}
       <div className="px-6 mb-6">
-        <PeerTicker />
+        <PeerTicker socialConnections={[]} />
         <PeerAvatars />
       </div>
 

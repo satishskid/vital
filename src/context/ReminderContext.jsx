@@ -1,6 +1,6 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import supabase from '../lib/supabase';
-import { useAuth } from './AuthContext';
+import { useAuth } from './FirebaseAuthContext';
 import { useTime } from './TimeContext';
 import { mockReminders } from '../data/mockData';
 

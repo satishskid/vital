@@ -1,8 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { FiHeart, FiActivity, FiMoon, FiInfo, FiSave, FiCheck } from 'react-icons/fi';
-import { useAuth } from '../../context/AuthContext';
-import { supabase } from '../../lib/supabase';
+import { useAuth } from '../../context/FirebaseAuthContext';
+import EnhancedInput from './EnhancedInput';
+import {
+  heartRateSuggestions,
+  hrvSuggestions,
+  sleepDurationSuggestions,
+  stepsSuggestions,
+  activityLevelOptions,
+  sleepQualityOptions
+} from './healthInputData';
 
 const SafeIcon = ({ icon: Icon, ...props }) => {
   if (!Icon) return <div {...props} />;
@@ -33,7 +41,7 @@ const InfoTooltip = ({ content }) => {
 };
 
 const HealthDataForm = ({ onSuccess, initialData = null }) => {
-  const { user } = useAuth();
+  const { user, saveHealthData } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
@@ -89,15 +97,8 @@ const HealthDataForm = ({ onSuccess, initialData = null }) => {
     setError(null);
 
     try {
-      const today = new Date().toISOString().split('T')[0];
-      const entryType = new Date().getHours() < 12 ? 'morning' : 'evening';
-
-      // Prepare data for database
+      // Prepare data for Firebase
       const entryData = {
-        user_id: user.id,
-        entry_date: today,
-        entry_type: entryType,
-        source: 'manual_entry',
         heart_rate: healthData.heart_rate ? parseInt(healthData.heart_rate) : null,
         hrv: healthData.hrv ? parseFloat(healthData.hrv) : null,
         steps: healthData.steps ? parseInt(healthData.steps) : null,
@@ -107,25 +108,18 @@ const HealthDataForm = ({ onSuccess, initialData = null }) => {
         notes: healthData.notes || null
       };
 
-      // Insert or update health entry
-      const { data, error } = await supabase
-        .from('health_entries')
-        .upsert([entryData], { 
-          onConflict: 'user_id,entry_date,entry_type',
-          ignoreDuplicates: false 
-        })
-        .select();
+      // Save to Firebase
+      const result = await saveHealthData(entryData);
 
-      if (error) throw error;
-
-      // Update user streak
-      await updateUserStreak(user.id, today);
+      if (!result.success) {
+        throw new Error(result.error);
+      }
 
       setSuccess(true);
       setTimeout(() => setSuccess(false), 3000);
 
       if (onSuccess) {
-        onSuccess(data[0]);
+        onSuccess(result.data);
       }
 
       // Reset form if this was a new entry
@@ -152,11 +146,14 @@ const HealthDataForm = ({ onSuccess, initialData = null }) => {
   const updateUserStreak = async (userId, entryDate) => {
     try {
       // Get current streak data
-      const { data: streakData, error: streakError } = await supabase
-        .from('streaks')
-        .select('*')
-        .eq('user_id', userId)
-        .single();
+      // TODO: Implement Firebase-based streak tracking
+      // const { data: streakData, error: streakError } = await supabase
+      //   .from('streaks')
+      //   .select('*')
+      //   .eq('user_id', userId)
+      //   .single();
+      const streakData = null;
+      const streakError = null;
 
       if (streakError && streakError.code !== 'PGRST116') {
         console.error('Error fetching streak:', streakError);
@@ -186,17 +183,19 @@ const HealthDataForm = ({ onSuccess, initialData = null }) => {
       longestStreak = Math.max(longestStreak, newStreak);
 
       // Update streak
-      const { error: updateError } = await supabase
-        .from('streaks')
-        .upsert([
-          {
-            user_id: userId,
-            current_streak: newStreak,
-            longest_streak: longestStreak,
-            last_entry_date: entryDate,
-            updated_at: new Date().toISOString()
-          }
-        ], { onConflict: 'user_id' });
+      // TODO: Implement Firebase-based streak tracking
+      // const { error: updateError } = await supabase
+      //   .from('streaks')
+      //   .upsert([
+      //     {
+      //       user_id: userId,
+      //       current_streak: newStreak,
+      //       longest_streak: longestStreak,
+      //       last_entry_date: entryDate,
+      //       updated_at: new Date().toISOString()
+      //     }
+      //   ], { onConflict: 'user_id' });
+      const updateError = null;
 
       if (updateError) {
         console.error('Error updating streak:', updateError);
@@ -244,13 +243,15 @@ const HealthDataForm = ({ onSuccess, initialData = null }) => {
     }
 
     if (achievements.length > 0) {
-      const { error } = await supabase
-        .from('achievements')
-        .insert(achievements);
+      // TODO: Implement Firebase-based achievements
+      // const { error } = await supabase
+      //   .from('achievements')
+      //   .insert(achievements);
 
-      if (error) {
-        console.error('Error saving achievements:', error);
-      }
+      // if (error) {
+      //   console.error('Error saving achievements:', error);
+      // }
+      console.log('Achievements earned:', achievements);
     }
   };
 
@@ -288,46 +289,38 @@ const HealthDataForm = ({ onSuccess, initialData = null }) => {
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Heart Rate (BPM)
-                <InfoTooltip content="Your resting heart rate, typically measured in the morning" />
-              </label>
-              <input
-                type="number"
+              <EnhancedInput
+                type="suggestions"
+                label="Heart Rate (BPM)"
+                value={healthData.heart_rate}
+                onChange={(value) => setHealthData({...healthData, heart_rate: value})}
+                suggestions={heartRateSuggestions}
+                placeholder="e.g., 72"
                 min="40"
                 max="200"
-                value={healthData.heart_rate}
-                onChange={(e) => setHealthData({...healthData, heart_rate: e.target.value})}
-                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-red-500 ${
-                  validationErrors.heart_rate ? 'border-red-300' : 'border-gray-300'
-                }`}
-                placeholder="e.g., 72"
+                tooltip="Your resting heart rate, typically measured in the morning"
+                error={validationErrors.heart_rate}
+                className="focus:ring-red-500 focus:border-red-500"
+                unit="BPM"
               />
-              {validationErrors.heart_rate && (
-                <p className="text-red-500 text-xs mt-1">{validationErrors.heart_rate}</p>
-              )}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                HRV (RMSSD in ms)
-                <InfoTooltip content="Heart Rate Variability - higher values typically indicate better recovery" />
-              </label>
-              <input
-                type="number"
+              <EnhancedInput
+                type="suggestions"
+                label="HRV (RMSSD in ms)"
+                value={healthData.hrv}
+                onChange={(value) => setHealthData({...healthData, hrv: value})}
+                suggestions={hrvSuggestions}
+                placeholder="e.g., 35.2"
                 min="5"
                 max="100"
                 step="0.1"
-                value={healthData.hrv}
-                onChange={(e) => setHealthData({...healthData, hrv: e.target.value})}
-                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-red-500 ${
-                  validationErrors.hrv ? 'border-red-300' : 'border-gray-300'
-                }`}
-                placeholder="e.g., 35.2"
+                tooltip="Heart Rate Variability - higher values typically indicate better recovery"
+                error={validationErrors.hrv}
+                className="focus:ring-red-500 focus:border-red-500"
+                unit="ms"
               />
-              {validationErrors.hrv && (
-                <p className="text-red-500 text-xs mt-1">{validationErrors.hrv}</p>
-              )}
             </div>
           </div>
         </div>
@@ -341,40 +334,32 @@ const HealthDataForm = ({ onSuccess, initialData = null }) => {
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Daily Steps
-                <InfoTooltip content="Total steps taken today - check your phone's health app" />
-              </label>
-              <input
-                type="number"
+              <EnhancedInput
+                type="suggestions"
+                label="Daily Steps"
+                value={healthData.steps}
+                onChange={(value) => setHealthData({...healthData, steps: value})}
+                suggestions={stepsSuggestions}
+                placeholder="e.g., 8500"
                 min="0"
                 max="50000"
-                value={healthData.steps}
-                onChange={(e) => setHealthData({...healthData, steps: e.target.value})}
-                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-emerald-500 ${
-                  validationErrors.steps ? 'border-red-300' : 'border-gray-300'
-                }`}
-                placeholder="e.g., 8500"
+                tooltip="Total steps taken today - check your phone's health app"
+                error={validationErrors.steps}
+                className="focus:ring-emerald-500 focus:border-emerald-500"
+                unit="steps"
               />
-              {validationErrors.steps && (
-                <p className="text-red-500 text-xs mt-1">{validationErrors.steps}</p>
-              )}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Activity Level
-              </label>
-              <select
+              <EnhancedInput
+                type="dropdown"
+                label="Activity Level"
                 value={healthData.activity_level}
-                onChange={(e) => setHealthData({...healthData, activity_level: e.target.value})}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
-              >
-                <option value="sedentary">Sedentary (mostly sitting)</option>
-                <option value="light">Light (some walking)</option>
-                <option value="moderate">Moderate (regular movement)</option>
-                <option value="vigorous">Vigorous (intense exercise)</option>
-              </select>
+                onChange={(value) => setHealthData({...healthData, activity_level: value})}
+                suggestions={activityLevelOptions}
+                placeholder="Select activity level"
+                className="focus:ring-emerald-500 focus:border-emerald-500"
+              />
             </div>
           </div>
         </div>
@@ -388,47 +373,33 @@ const HealthDataForm = ({ onSuccess, initialData = null }) => {
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Sleep Duration (hours)
-                <InfoTooltip content="Total sleep time from last night" />
-              </label>
-              <input
-                type="number"
+              <EnhancedInput
+                type="suggestions"
+                label="Sleep Duration (hours)"
+                value={healthData.sleep_duration}
+                onChange={(value) => setHealthData({...healthData, sleep_duration: value})}
+                suggestions={sleepDurationSuggestions}
+                placeholder="e.g., 7.5"
                 min="0"
                 max="24"
                 step="0.5"
-                value={healthData.sleep_duration}
-                onChange={(e) => setHealthData({...healthData, sleep_duration: e.target.value})}
-                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 ${
-                  validationErrors.sleep_duration ? 'border-red-300' : 'border-gray-300'
-                }`}
-                placeholder="e.g., 7.5"
+                tooltip="Total sleep time from last night"
+                error={validationErrors.sleep_duration}
+                className="focus:ring-blue-500 focus:border-blue-500"
+                unit="hours"
               />
-              {validationErrors.sleep_duration && (
-                <p className="text-red-500 text-xs mt-1">{validationErrors.sleep_duration}</p>
-              )}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Sleep Quality (1-10)
-              </label>
-              <div className="flex space-x-2">
-                {[1,2,3,4,5,6,7,8,9,10].map(rating => (
-                  <button
-                    key={rating}
-                    type="button"
-                    onClick={() => setHealthData({...healthData, sleep_quality: rating})}
-                    className={`w-10 h-10 rounded-full border-2 text-sm font-medium transition-colors ${
-                      healthData.sleep_quality === rating 
-                        ? 'bg-blue-500 border-blue-500 text-white' 
-                        : 'border-gray-300 text-gray-600 hover:border-blue-300'
-                    }`}
-                  >
-                    {rating}
-                  </button>
-                ))}
-              </div>
+              <EnhancedInput
+                type="dropdown"
+                label="Sleep Quality (1-10)"
+                value={healthData.sleep_quality}
+                onChange={(value) => setHealthData({...healthData, sleep_quality: value})}
+                suggestions={sleepQualityOptions}
+                placeholder="Rate your sleep quality"
+                className="focus:ring-blue-500 focus:border-blue-500"
+              />
             </div>
           </div>
         </div>

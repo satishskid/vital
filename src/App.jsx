@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import './App.css';
 
 // Context Providers
-import { AuthProvider, useAuth } from './context/AuthContext';
+import { AuthProvider, useAuth } from './context/FirebaseAuthContext';
 import { TimeProvider } from './context/TimeContext';
 import { ReminderProvider } from './context/ReminderContext';
 import { SocialProvider } from './context/SocialContext';
@@ -24,6 +24,14 @@ import ScienceCard from './components/Science/ScienceCard';
 import RemindersScreen from './components/Reminders/RemindersScreen';
 import ContextualMessage from './components/Dashboard/ContextualMessage';
 import ManualEntryDashboard from './components/ManualEntry/ManualEntryDashboard';
+import HealthAppsRecommendations from './components/HealthApps/HealthAppsRecommendations';
+import HRVDashboard from './components/HRV/HRVDashboard';
+import ActivityDashboard from './components/Activity/ActivityDashboard';
+import TestingDashboard from './components/Testing/TestingDashboard';
+import SocialWellnessDashboard from './components/Social/SocialWellnessDashboard';
+import SocialCircleManager from './components/Social/SocialCircleManager';
+import WelcomeScreen from './components/Welcome/WelcomeScreen';
+import LandingPage from './components/Landing/LandingPage';
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -51,11 +59,25 @@ function AppContent() {
   const [currentWhyCard, setCurrentWhyCard] = useState(null);
   const [scienceCard, setScienceCard] = useState(null);
   const [scienceCardTimer, setScienceCardTimer] = useState(null);
+  const [showLanding, setShowLanding] = useState(!user);
+  const [showWelcome, setShowWelcome] = useState(false);
+  const [hasCompletedWelcome, setHasCompletedWelcome] = useState(false);
 
   useEffect(() => {
     const onboarded = localStorage.getItem('vita-onboarded');
+    const welcomeCompleted = localStorage.getItem('vita-welcome-completed');
+
     setIsOnboarded(onboarded === 'true');
-    
+    setHasCompletedWelcome(welcomeCompleted === 'true');
+
+    // Show welcome screen for new users after authentication
+    if (user && !welcomeCompleted) {
+      setShowWelcome(true);
+      setShowLanding(false);
+    } else if (user) {
+      setShowLanding(false);
+    }
+
     // Set up timed science cards if user is logged in and onboarded
     if (user && onboarded === 'true') {
       setScienceCardTimer(
@@ -64,7 +86,7 @@ function AppContent() {
         }, 30000) // Show first card after 30 seconds
       );
     }
-    
+
     return () => {
       if (scienceCardTimer) clearTimeout(scienceCardTimer);
     };
@@ -113,13 +135,29 @@ function AppContent() {
   const handleOnboardingComplete = () => {
     localStorage.setItem('vita-onboarded', 'true');
     setIsOnboarded(true);
-    
+
     // Set up science card timer after onboarding
     setScienceCardTimer(
       setTimeout(() => {
         showRandomScienceCard();
       }, 30000) // Show first card after 30 seconds
     );
+  };
+
+  const handleWelcomeComplete = () => {
+    localStorage.setItem('vita-welcome-completed', 'true');
+    setHasCompletedWelcome(true);
+    setShowWelcome(false);
+  };
+
+  const handleGetStarted = () => {
+    setShowLanding(false);
+    // This will trigger auth flow
+  };
+
+  const handleSignIn = () => {
+    setShowLanding(false);
+    // This will trigger auth flow
   };
 
   const showWhyCard = (cardData) => {
@@ -134,8 +172,24 @@ function AppContent() {
     setScienceCard(null);
   };
 
+  // Show landing page for non-authenticated users
+  if (!user && showLanding) {
+    return (
+      <LandingPage
+        onGetStarted={handleGetStarted}
+        onSignIn={handleSignIn}
+      />
+    );
+  }
+
+  // Show auth screen when user wants to sign in
   if (!user) {
     return <AuthScreen />;
+  }
+
+  // Show welcome screen for new authenticated users
+  if (user && showWelcome && !hasCompletedWelcome) {
+    return <WelcomeScreen onComplete={handleWelcomeComplete} />;
   }
 
   if (user && !isOnboarded) {
@@ -192,6 +246,36 @@ function AppContent() {
             <Route path="/reminders" element={
               <ProtectedRoute>
                 <RemindersScreen />
+              </ProtectedRoute>
+            } />
+            <Route path="/health-apps" element={
+              <ProtectedRoute>
+                <HealthAppsRecommendations />
+              </ProtectedRoute>
+            } />
+            <Route path="/camera-hrv" element={
+              <ProtectedRoute>
+                <HRVDashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/activity" element={
+              <ProtectedRoute>
+                <ActivityDashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/testing" element={
+              <ProtectedRoute>
+                <TestingDashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/social" element={
+              <ProtectedRoute>
+                <SocialWellnessDashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/social/manage" element={
+              <ProtectedRoute>
+                <SocialCircleManager />
               </ProtectedRoute>
             } />
             <Route path="/auth" element={

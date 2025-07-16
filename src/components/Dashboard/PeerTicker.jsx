@@ -2,20 +2,32 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import * as FiIcons from 'react-icons/fi';
 import SafeIcon from '../../common/SafeIcon';
+import { useAuth } from '../../context/FirebaseAuthContext';
 
-const { FiActivity, FiHeart, FiSun, FiMoon } = FiIcons;
+const { FiActivity, FiHeart, FiSun, FiMoon, FiUsers } = FiIcons;
 
-const PeerTicker = () => {
+const PeerTicker = ({ socialConnections = [] }) => {
   const [currentActivity, setCurrentActivity] = useState(0);
-  
-  const activities = [
-    { icon: FiActivity, text: "A peer just completed a 20-minute walk" },
-    { icon: FiHeart, text: "Someone finished their morning breath session" },
-    { icon: FiSun, text: "A peer logged a healthy breakfast" },
-    { icon: FiMoon, text: "Someone completed their evening reflection" },
-    { icon: FiActivity, text: "A peer achieved their movement goal" },
-    { icon: FiHeart, text: "Someone practiced 10 minutes of meditation" }
+  const { user } = useAuth();
+
+  // Only show real peer activities if user has social connections
+  const hasRealConnections = socialConnections && socialConnections.length > 0;
+
+  // Real activities from social connections (when available)
+  const realActivities = socialConnections.map(connection => ({
+    icon: FiActivity,
+    text: `${connection.first_name} is staying active today`,
+    isReal: true
+  }));
+
+  // Fallback to motivational community messages (not fake peer data)
+  const communityMessages = [
+    { icon: FiUsers, text: "Join the Vita community to see peer activity", isReal: false },
+    { icon: FiHeart, text: "Connect with friends to share your wellness journey", isReal: false },
+    { icon: FiSun, text: "Build your social circle for better health outcomes", isReal: false }
   ];
+
+  const activities = hasRealConnections ? realActivities : communityMessages;
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -28,10 +40,14 @@ const PeerTicker = () => {
   return (
     <div className="bg-white rounded-xl p-4 shadow-sm mb-4 overflow-hidden">
       <div className="flex items-center justify-between mb-2">
-        <h3 className="font-semibold text-gray-800">Community Activity</h3>
+        <h3 className="font-semibold text-gray-800">
+          {hasRealConnections ? 'Your Circle' : 'Community'}
+        </h3>
         <div className="flex items-center space-x-1">
-          <div className="w-2 h-2 bg-green-500 rounded-full pulse-dot"></div>
-          <span className="text-xs text-gray-500">Live</span>
+          <div className={`w-2 h-2 rounded-full ${hasRealConnections ? 'bg-green-500 pulse-dot' : 'bg-gray-400'}`}></div>
+          <span className="text-xs text-gray-500">
+            {hasRealConnections ? 'Live' : 'Connect'}
+          </span>
         </div>
       </div>
       

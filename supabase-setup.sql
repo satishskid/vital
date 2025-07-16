@@ -182,12 +182,18 @@ CREATE POLICY "Users can update own education progress"
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
-  INSERT INTO public.profiles (id, first_name, last_name)
-  VALUES (NEW.id, '', '');
-  
-  INSERT INTO public.streaks (user_id, current_streak, longest_streak)
-  VALUES (NEW.id, 0, 0);
-  
+  -- Only create profile if it doesn't exist (to avoid conflicts)
+  INSERT INTO public.profiles (id, first_name, last_name, goals, created_at, updated_at)
+  VALUES (NEW.id, COALESCE(NEW.raw_user_meta_data->>'first_name', ''),
+          COALESCE(NEW.raw_user_meta_data->>'last_name', ''),
+          '{}', NOW(), NOW())
+  ON CONFLICT (id) DO NOTHING;
+
+  -- Create initial streak record
+  INSERT INTO public.streaks (user_id, current_streak, longest_streak, updated_at)
+  VALUES (NEW.id, 0, 0, NOW())
+  ON CONFLICT (user_id) DO NOTHING;
+
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;

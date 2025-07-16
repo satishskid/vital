@@ -3,17 +3,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import * as FiIcons from 'react-icons/fi';
 import SafeIcon from '../../common/SafeIcon';
 
-const { FiHeart, FiUsers, FiCamera, FiBell, FiArrowRight, FiCheck } = FiIcons;
+const { FiHeart, FiUsers, FiArrowRight, FiCheck } = FiIcons;
 
 const Onboarding = ({ onComplete }) => {
   const [currentStep, setCurrentStep] = useState(0);
   const [selectedGoals, setSelectedGoals] = useState([]);
   const [selectedBarriers, setSelectedBarriers] = useState([]);
-  const [permissionsGranted, setPermissionsGranted] = useState({
-    health: false,
-    camera: false,
-    notifications: false
-  });
 
   const steps = [
     {
@@ -30,11 +25,6 @@ const Onboarding = ({ onComplete }) => {
       title: 'What challenges do you face?',
       subtitle: 'Help us understand your barriers',
       type: 'barriers'
-    },
-    {
-      title: 'Enable Health Tracking',
-      subtitle: 'Connect to Apple Health or Google Fit',
-      type: 'permissions'
     },
     {
       title: 'Set Up Your Support Circle',
@@ -86,14 +76,6 @@ const Onboarding = ({ onComplete }) => {
     );
   };
 
-  const handlePermissionRequest = (type) => {
-    // Simulate permission request
-    setPermissionsGranted(prev => ({
-      ...prev,
-      [type]: true
-    }));
-  };
-
   const nextStep = () => {
     if (currentStep < steps.length - 1) {
       setCurrentStep(currentStep + 1);
@@ -108,8 +90,6 @@ const Onboarding = ({ onComplete }) => {
         return selectedGoals.length > 0;
       case 'barriers':
         return selectedBarriers.length > 0;
-      case 'permissions':
-        return permissionsGranted.health && permissionsGranted.camera && permissionsGranted.notifications;
       default:
         return true;
     }
@@ -241,96 +221,7 @@ const Onboarding = ({ onComplete }) => {
                 </div>
               )}
 
-              {steps[currentStep].type === 'permissions' && (
-                <div className="space-y-4">
-                  <div className={`p-4 rounded-lg border-2 ${
-                    permissionsGranted.health ? 'border-green-500 bg-green-50' : 'border-gray-200'
-                  }`}>
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-center space-x-3">
-                        <SafeIcon icon={FiHeart} className="w-6 h-6 text-red-500" />
-                        <div>
-                          <h3 className="font-semibold text-gray-800">Health Data</h3>
-                          <p className="text-sm text-gray-600">Apple Health / Google Fit</p>
-                        </div>
-                      </div>
-                      {permissionsGranted.health && (
-                        <SafeIcon icon={FiCheck} className="w-6 h-6 text-green-600" />
-                      )}
-                    </div>
-                    <p className="text-sm text-gray-600 mb-3">
-                      To automatically track your movement and sleep, so you don't have to.
-                    </p>
-                    {!permissionsGranted.health && (
-                      <motion.button
-                        onClick={() => handlePermissionRequest('health')}
-                        className="w-full bg-red-500 text-white py-2 rounded-lg font-medium"
-                        whileTap={{ scale: 0.98 }}
-                      >
-                        Enable Health Tracking
-                      </motion.button>
-                    )}
-                  </div>
 
-                  <div className={`p-4 rounded-lg border-2 ${
-                    permissionsGranted.camera ? 'border-green-500 bg-green-50' : 'border-gray-200'
-                  }`}>
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-center space-x-3">
-                        <SafeIcon icon={FiCamera} className="w-6 h-6 text-blue-500" />
-                        <div>
-                          <h3 className="font-semibold text-gray-800">Camera Access</h3>
-                          <p className="text-sm text-gray-600">For HRV measurement</p>
-                        </div>
-                      </div>
-                      {permissionsGranted.camera && (
-                        <SafeIcon icon={FiCheck} className="w-6 h-6 text-green-600" />
-                      )}
-                    </div>
-                    <p className="text-sm text-gray-600 mb-3">
-                      For your private, 60-second 'Morning Readiness Check.' No images or videos are ever saved.
-                    </p>
-                    {!permissionsGranted.camera && (
-                      <motion.button
-                        onClick={() => handlePermissionRequest('camera')}
-                        className="w-full bg-blue-500 text-white py-2 rounded-lg font-medium"
-                        whileTap={{ scale: 0.98 }}
-                      >
-                        Enable Camera
-                      </motion.button>
-                    )}
-                  </div>
-
-                  <div className={`p-4 rounded-lg border-2 ${
-                    permissionsGranted.notifications ? 'border-green-500 bg-green-50' : 'border-gray-200'
-                  }`}>
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-center space-x-3">
-                        <SafeIcon icon={FiBell} className="w-6 h-6 text-purple-500" />
-                        <div>
-                          <h3 className="font-semibold text-gray-800">Notifications</h3>
-                          <p className="text-sm text-gray-600">Gentle reminders</p>
-                        </div>
-                      </div>
-                      {permissionsGranted.notifications && (
-                        <SafeIcon icon={FiCheck} className="w-6 h-6 text-green-600" />
-                      )}
-                    </div>
-                    <p className="text-sm text-gray-600 mb-3">
-                      For gentle, positive reminders to help you build your new habits.
-                    </p>
-                    {!permissionsGranted.notifications && (
-                      <motion.button
-                        onClick={() => handlePermissionRequest('notifications')}
-                        className="w-full bg-purple-500 text-white py-2 rounded-lg font-medium"
-                        whileTap={{ scale: 0.98 }}
-                      >
-                        Enable Notifications
-                      </motion.button>
-                    )}
-                  </div>
-                </div>
-              )}
 
               {steps[currentStep].type === 'support' && (
                 <div className="text-center">

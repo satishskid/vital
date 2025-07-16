@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import * as FiIcons from 'react-icons/fi';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../context/FirebaseAuthContext';
 import SafeIcon from '../../common/SafeIcon';
 
 const { FiMail, FiLock, FiArrowRight, FiAlertCircle } = FiIcons;

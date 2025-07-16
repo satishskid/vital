@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { FiPlus, FiTrendingUp, FiAward, FiBookOpen, FiDownload, FiCalendar } from 'react-icons/fi';
-import { useAuth } from '../../context/AuthContext';
-import { supabase } from '../../lib/supabase';
-import { reminderSystem } from '../../lib/reminderSystem';
+import { FiPlus, FiTrendingUp, FiAward, FiBookOpen, FiDownload, FiCalendar, FiSettings, FiInfo } from 'react-icons/fi';
+import { useAuth } from '../../context/FirebaseAuthContext';
+// import { reminderSystem } from '../../lib/reminderSystem';
 import HealthDataForm from './HealthDataForm';
 import ImportGuide from '../DataImport/ImportGuide';
 import HealthMetricInfo from '../Education/HealthMetricInfo';
+import HealthDataExplanation from '../DataEntry/HealthDataExplanation';
 
 const SafeIcon = ({ icon: Icon, ...props }) => {
   if (!Icon) return <div {...props} />;
@@ -14,7 +14,7 @@ const SafeIcon = ({ icon: Icon, ...props }) => {
 };
 
 const ManualEntryDashboard = () => {
-  const { user } = useAuth();
+  const { user, getRecentHealthEntries } = useAuth();
   const [activeTab, setActiveTab] = useState('log_data');
   const [recentEntries, setRecentEntries] = useState([]);
   const [userStats, setUserStats] = useState({
@@ -26,6 +26,8 @@ const ManualEntryDashboard = () => {
   const [motivationalMessage, setMotivationalMessage] = useState('');
   const [loading, setLoading] = useState(true);
   const [selectedMetric, setSelectedMetric] = useState(null);
+  const [showDataExplanation, setShowDataExplanation] = useState(false);
+  const [whyCardData, setWhyCardData] = useState(null);
 
   useEffect(() => {
     if (user) {
@@ -59,20 +61,8 @@ const ManualEntryDashboard = () => {
 
   const initializeReminders = async () => {
     try {
-      // Initialize reminder system
-      const initialized = await reminderSystem.initialize();
-      
-      if (initialized) {
-        // Check if user has reminders, if not create default ones
-        const existingReminders = await reminderSystem.getUserReminders(user.id);
-        
-        if (existingReminders.length === 0) {
-          await reminderSystem.createDefaultReminders(user.id);
-        }
-        
-        // Schedule all user reminders
-        await reminderSystem.scheduleAllUserReminders(user.id);
-      }
+      // Reminder system temporarily disabled for Firebase migration
+      console.log('Reminder system will be implemented later');
     } catch (error) {
       console.error('Error initializing reminders:', error);
     }
@@ -80,15 +70,12 @@ const ManualEntryDashboard = () => {
 
   const fetchRecentEntries = async () => {
     try {
-      const { data, error } = await supabase
-        .from('health_entries')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('entry_date', { ascending: false })
-        .limit(7);
-
-      if (error) throw error;
-      setRecentEntries(data || []);
+      const result = await getRecentHealthEntries(7);
+      if (result.success) {
+        setRecentEntries(result.data || []);
+      } else {
+        console.error('Error fetching recent entries:', result.error);
+      }
     } catch (error) {
       console.error('Error fetching recent entries:', error);
     }
@@ -96,21 +83,11 @@ const ManualEntryDashboard = () => {
 
   const calculateUserStats = async () => {
     try {
-      // Get streak data
-      const streakData = await reminderSystem.calculateUserStreak(user.id);
-      
-      // Get total entries count
-      const { count, error } = await supabase
-        .from('health_entries')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', user.id);
-
-      if (error) throw error;
-
+      // Simplified stats for Firebase - will implement properly later
       setUserStats({
-        currentStreak: streakData.currentStreak,
-        longestStreak: streakData.longestStreak,
-        totalEntries: count || 0
+        currentStreak: 0,
+        longestStreak: 0,
+        totalEntries: recentEntries.length
       });
     } catch (error) {
       console.error('Error calculating user stats:', error);
@@ -119,8 +96,8 @@ const ManualEntryDashboard = () => {
 
   const fetchAchievements = async () => {
     try {
-      const userAchievements = await reminderSystem.getAchievements(user.id);
-      setAchievements(userAchievements);
+      // Simplified achievements for Firebase - will implement properly later
+      setAchievements([]);
     } catch (error) {
       console.error('Error fetching achievements:', error);
     }
@@ -128,8 +105,15 @@ const ManualEntryDashboard = () => {
 
   const fetchMotivationalMessage = async () => {
     try {
-      const messageData = await reminderSystem.getMotivationalMessage(user.id);
-      setMotivationalMessage(messageData.message);
+      // Motivational messages temporarily disabled for Firebase migration
+      const messages = [
+        "Great job logging your health data! 🌟",
+        "Keep up the healthy habits! 💪",
+        "Your wellness journey is inspiring! 🚀",
+        "Every entry brings you closer to your goals! 🎯"
+      ];
+      const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+      setMotivationalMessage(randomMessage);
     } catch (error) {
       console.error('Error fetching motivational message:', error);
     }
@@ -141,6 +125,12 @@ const ManualEntryDashboard = () => {
     await calculateUserStats();
     await fetchAchievements();
     await fetchMotivationalMessage();
+  };
+
+  const showWhyCard = (data) => {
+    setWhyCardData(data);
+    // You can implement a modal or tooltip to show this data
+    console.log('Why card data:', data);
   };
 
   const formatDate = (dateString) => {
@@ -177,7 +167,16 @@ const ManualEntryDashboard = () => {
           <div className="flex items-center justify-between mb-6">
             <div>
               <h1 className="text-2xl font-bold text-gray-800">Health Tracking</h1>
-              <p className="text-gray-600">Manual entry • Privacy-first approach</p>
+              <div className="flex items-center space-x-4">
+                <p className="text-gray-600">Manual entry • Privacy-first approach</p>
+                <button
+                  onClick={() => setShowDataExplanation(true)}
+                  className="flex items-center space-x-1 text-blue-600 hover:text-blue-700 text-sm"
+                >
+                  <SafeIcon icon={FiInfo} className="w-4 h-4" />
+                  <span>How it works</span>
+                </button>
+              </div>
             </div>
             <div className="text-right">
               <div className="text-2xl font-bold text-emerald-600">{userStats.currentStreak}</div>
@@ -380,6 +379,13 @@ const ManualEntryDashboard = () => {
           </div>
         )}
       </div>
+
+      {/* Health Data Explanation Modal */}
+      <HealthDataExplanation
+        isOpen={showDataExplanation}
+        onClose={() => setShowDataExplanation(false)}
+        showWhyCard={showWhyCard}
+      />
     </div>
   );
 };

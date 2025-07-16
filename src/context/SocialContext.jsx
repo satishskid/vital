@@ -1,6 +1,6 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import supabase from '../lib/supabase';
-import { useAuth } from './AuthContext';
+import { useAuth } from './FirebaseAuthContext';
 import { mockSocialCircle } from '../data/mockData';
 
 // Import SUPABASE_URL for mock data checks
@@ -37,7 +37,7 @@ export const SocialProvider = ({ children }) => {
         // Real Supabase fetch
         const { data, error } = await supabase
           .from('connections')
-          .select('*, connection_profiles:connection_id(id, email, first_name, last_name, avatar_url, status, mood, last_activity)')
+          .select('*, connection_profiles:connection_id(id, email, first_name, last_name, status, mood, last_activity)')
           .eq('user_id', user.id);
           
         if (error) throw error;
@@ -84,7 +84,7 @@ export const SocialProvider = ({ children }) => {
             email,
             first_name: 'New',
             last_name: 'Contact',
-            avatar_url: null,
+
             status: 'pending',
             mood: '😊',
             last_activity: 'Joined Vita'
@@ -144,7 +144,7 @@ export const SocialProvider = ({ children }) => {
       // Get the connection with profile info
       const { data: connectionWithProfile, error: profileError } = await supabase
         .from('connections')
-        .select('*, connection_profiles:connection_id(id, email, first_name, last_name, avatar_url, status, mood, last_activity)')
+        .select('*, connection_profiles:connection_id(id, email, first_name, last_name, status, mood, last_activity)')
         .eq('id', data[0].id)
         .single();
         
@@ -207,7 +207,7 @@ export const SocialProvider = ({ children }) => {
       // Get the updated connection with profile info
       const { data: connectionWithProfile, error: profileError } = await supabase
         .from('connections')
-        .select('*, connection_profiles:connection_id(id, email, first_name, last_name, avatar_url, status, mood, last_activity)')
+        .select('*, connection_profiles:connection_id(id, email, first_name, last_name, status, mood, last_activity)')
         .eq('id', id)
         .single();
         
