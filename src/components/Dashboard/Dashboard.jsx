@@ -9,6 +9,8 @@ import PeerAvatars from './PeerAvatars';
 import QuickActions from './QuickActions';
 import VitalityOrbHome from '../VitalityOrb/VitalityOrbHome';
 import HealthDataService from '../../services/HealthDataService';
+import PodcastSnippetService from '../../services/PodcastSnippetService';
+import PodcastModal from '../Audio/PodcastModal';
 import { useAuth } from '../../context/FirebaseAuthContext';
 
 const { FiSun, FiMoon, FiInfo, FiTrendingUp, FiBookOpen, FiSettings } = FiIcons;
@@ -34,6 +36,9 @@ const Dashboard = ({ showWhyCard }) => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const healthServiceRef = useRef(null);
+  const podcastServiceRef = useRef(null);
+  const [showPodcastPlayer, setShowPodcastPlayer] = useState(false);
+  const [podcastInfo, setPodcastInfo] = useState(null);
 
   // ALL HOOKS MUST BE CALLED BEFORE ANY CONDITIONAL RETURNS
 
@@ -41,9 +46,38 @@ const Dashboard = ({ showWhyCard }) => {
   useEffect(() => {
     if (user) {
       healthServiceRef.current = new HealthDataService(user.uid);
+      podcastServiceRef.current = new PodcastSnippetService();
+
+      // Initialize podcast snippets for new users
+      const hasInitializedSnippets = localStorage.getItem(`vita-snippets-${user.uid}`);
+      if (!hasInitializedSnippets) {
+        podcastServiceRef.current.initializeForUser(user.uid);
+      }
+
       loadHealthData();
+      loadPodcastInfo();
     }
   }, [user]);
+
+  // Set up podcast event listeners
+  useEffect(() => {
+    const handleOpenPodcast = (event) => {
+      setPodcastInfo(event.detail);
+      setShowPodcastPlayer(true);
+    };
+
+    const handleSnippetDetails = (event) => {
+      showWhyCard(event.detail);
+    };
+
+    window.addEventListener('open-podcast', handleOpenPodcast);
+    window.addEventListener('show-snippet-details', handleSnippetDetails);
+
+    return () => {
+      window.removeEventListener('open-podcast', handleOpenPodcast);
+      window.removeEventListener('show-snippet-details', handleSnippetDetails);
+    };
+  }, []);
 
   // Load theme preference from localStorage
   useEffect(() => {
@@ -191,10 +225,37 @@ const Dashboard = ({ showWhyCard }) => {
     };
   };
 
+  // Load podcast information
+  const loadPodcastInfo = () => {
+    const podcastLink = localStorage.getItem('vita-podcast-link');
+    const podcastTitle = localStorage.getItem('vita-podcast-title');
+
+    if (podcastLink) {
+      setPodcastInfo({
+        src: podcastLink,
+        title: podcastTitle || 'Six Golden Habits for Enduring Youth'
+      });
+    }
+  };
+
   // Refresh data function
   const refreshData = () => {
     if (healthServiceRef.current) {
       loadHealthData();
+    }
+  };
+
+  // Handle podcast access
+  const handleOpenPodcast = () => {
+    if (podcastInfo) {
+      setShowPodcastPlayer(true);
+    } else {
+      // Fallback to default podcast
+      setPodcastInfo({
+        src: '/audio/Six Golden Habits for Enduring Youth.wav',
+        title: 'Six Golden Habits for Enduring Youth'
+      });
+      setShowPodcastPlayer(true);
     }
   };
 
@@ -205,6 +266,7 @@ const Dashboard = ({ showWhyCard }) => {
         healthData={getHealthDataForOrb()}
         onThemeToggle={toggleTheme}
         onRefresh={refreshData}
+        onOpenPodcast={handleOpenPodcast}
         loading={loading}
       />
     );
@@ -238,13 +300,24 @@ const Dashboard = ({ showWhyCard }) => {
             <p className="text-gray-600">How are you feeling today?</p>
           </div>
           <div className="flex items-center space-x-4">
+            {podcastInfo && (
+              <motion.button
+                onClick={handleOpenPodcast}
+                className="flex items-center space-x-2 px-3 py-2 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-colors"
+                whileTap={{ scale: 0.95 }}
+                title="Listen to Six Golden Habits podcast"
+              >
+                <SafeIcon icon={FiIcons.FiPlay} className="w-4 h-4" />
+                <span className="text-sm font-medium">Podcast</span>
+              </motion.button>
+            )}
             <motion.button
               onClick={toggleTheme}
               className="p-2 bg-purple-50 rounded-full hover:bg-purple-100 transition-colors"
               whileTap={{ scale: 0.95 }}
               title="Switch to Vitality Orb theme"
             >
-              <SafeIcon icon={FiSettings} className="w-5 h-5 text-purple-600" />
+              <SafeIcon icon={FiIcons.FiSettings} className="w-5 h-5 text-purple-600" />
             </motion.button>
             <div className="text-right">
               <div className="text-3xl font-light text-gray-800">
@@ -402,6 +475,13 @@ const Dashboard = ({ showWhyCard }) => {
           </div>
         </div>
       </div>
+
+      {/* Podcast Modal */}
+      <PodcastModal
+        isOpen={showPodcastPlayer}
+        onClose={() => setShowPodcastPlayer(false)}
+        podcastInfo={podcastInfo}
+      />
     </div>
   );
 };

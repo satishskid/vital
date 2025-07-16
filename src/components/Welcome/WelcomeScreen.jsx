@@ -1,13 +1,14 @@
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiPlay, FiPause, FiArrowRight, FiHeart, FiSun, FiMoon, FiActivity, FiDroplet, FiUsers, FiShield } from 'react-icons/fi';
+import { FiPlay, FiPause, FiArrowRight, FiHeart, FiSun, FiMoon, FiActivity, FiDroplet, FiUsers, FiShield, FiInfo } from 'react-icons/fi';
 import SafeIcon from '../../common/SafeIcon';
 import PodcastPlayer from '../Audio/PodcastPlayer';
 
 const WelcomeScreen = ({ onComplete }) => {
   const [currentStep, setCurrentStep] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [hasListened, setHasListened] = useState(false);
+  const [podcastStarted, setPodcastStarted] = useState(false);
+  const [showPodcastLater, setShowPodcastLater] = useState(false);
 
   const steps = [
     {
@@ -18,7 +19,7 @@ const WelcomeScreen = ({ onComplete }) => {
     {
       id: 'podcast',
       title: 'Six Golden Habits for Enduring Youth',
-      subtitle: 'Listen to the science behind your vitality journey'
+      subtitle: 'Understanding the science behind your vitality journey (Optional but Recommended)'
     },
     {
       id: 'pillars',
@@ -91,10 +92,15 @@ const WelcomeScreen = ({ onComplete }) => {
     }
   };
 
-  const handlePodcastProgress = (progress) => {
-    if (progress > 0.1 && !hasListened) {
-      setHasListened(true);
-    }
+  const handlePodcastPlay = () => {
+    setPodcastStarted(true);
+  };
+
+  const handleListenLater = () => {
+    setShowPodcastLater(true);
+    // Save podcast link for later access
+    localStorage.setItem('vita-podcast-link', '/audio/Six Golden Habits for Enduring Youth.wav');
+    localStorage.setItem('vita-podcast-title', 'Six Golden Habits for Enduring Youth');
   };
 
   const WelcomeStep = () => (
@@ -151,9 +157,14 @@ const WelcomeScreen = ({ onComplete }) => {
         className="mb-8"
       >
         <h2 className="text-3xl font-bold text-gray-800 mb-4">Six Golden Habits for Enduring Youth</h2>
-        <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
-          Before we begin your journey, listen to the foundational science behind Vita's approach to vitality and longevity.
+        <p className="text-lg text-gray-600 mb-4 max-w-2xl mx-auto">
+          We recommend listening to understand the science behind Vita's approach to vitality and longevity.
         </p>
+        <div className="flex items-center justify-center space-x-4 text-sm text-gray-500 mb-6">
+          <span>⏱️ Duration: ~15 minutes</span>
+          <span>🎧 Audio quality: High</span>
+          <span>📚 Science-based content</span>
+        </div>
       </motion.div>
 
       <div className="bg-white rounded-2xl p-8 shadow-lg max-w-2xl mx-auto mb-8">
@@ -161,15 +172,63 @@ const WelcomeScreen = ({ onComplete }) => {
           audioSrc="/audio/Six Golden Habits for Enduring Youth.wav"
           title="Six Golden Habits for Enduring Youth"
           description="The scientific foundation for your vitality transformation"
+          onPlay={handlePodcastPlay}
         />
       </div>
 
-      <div className="bg-blue-50 rounded-lg p-6 max-w-2xl mx-auto">
-        <h3 className="font-semibold text-blue-800 mb-2">Why Listen First?</h3>
-        <p className="text-blue-700 text-sm">
-          Understanding the science behind vitality helps you make informed decisions about your health journey. 
-          This podcast explains the research that powers every feature in Vita.
-        </p>
+      <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto mb-8">
+        <div className="bg-green-50 rounded-lg p-6">
+          <h3 className="font-semibold text-green-800 mb-2">🔬 Why We Recommend Listening</h3>
+          <ul className="text-sm text-green-700 space-y-1 text-left">
+            <li>• Understand the science behind each vitality pillar</li>
+            <li>• Make informed decisions about your health journey</li>
+            <li>• Follow Vita's recommendations with confidence</li>
+            <li>• Build trust through scientific transparency</li>
+          </ul>
+        </div>
+
+        <div className="bg-purple-50 rounded-lg p-6">
+          <h3 className="font-semibold text-purple-800 mb-2">🎯 What You'll Learn</h3>
+          <ul className="text-sm text-purple-700 space-y-1 text-left">
+            <li>• Evidence-based habits for longevity</li>
+            <li>• How the six pillars work together</li>
+            <li>• Scientific research behind recommendations</li>
+            <li>• Practical application in daily life</li>
+          </ul>
+        </div>
+      </div>
+
+      {showPodcastLater && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-blue-100 rounded-lg p-4 max-w-2xl mx-auto mb-6"
+        >
+          <div className="flex items-center space-x-2 mb-2">
+            <SafeIcon icon={FiInfo} className="w-5 h-5 text-blue-600" />
+            <h4 className="font-semibold text-blue-800">Saved for Later</h4>
+          </div>
+          <p className="text-sm text-blue-700">
+            You can access this podcast anytime from the main dashboard. We'll also send you
+            helpful snippets as notifications to guide your journey.
+          </p>
+        </motion.div>
+      )}
+
+      <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-2xl mx-auto">
+        <button
+          onClick={handleListenLater}
+          className="flex items-center justify-center space-x-2 px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-lg hover:border-gray-400 transition-colors"
+        >
+          <SafeIcon icon={FiInfo} className="w-5 h-5" />
+          <span>I'll Listen Later</span>
+        </button>
+
+        <div className="text-center">
+          <p className="text-xs text-gray-500 mb-2">
+            {podcastStarted ? "Great! You can continue anytime" : "Your choice - we trust your judgment"}
+          </p>
+        </div>
       </div>
     </div>
   );
@@ -310,23 +369,21 @@ const WelcomeScreen = ({ onComplete }) => {
 
           <button
             onClick={handleNext}
-            className={`px-8 py-3 rounded-lg font-medium transition-all flex items-center space-x-2 ${
-              (currentStep === 1 && !hasListened)
-                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                : 'bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:from-purple-700 hover:to-blue-700'
-            }`}
-            disabled={currentStep === 1 && !hasListened}
+            className="px-8 py-3 rounded-lg font-medium transition-all flex items-center space-x-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:from-purple-700 hover:to-blue-700"
           >
             <span>{currentStep === steps.length - 1 ? 'Start Your Journey' : 'Continue'}</span>
             <SafeIcon icon={FiArrowRight} className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Podcast listening requirement notice */}
-        {currentStep === 1 && !hasListened && (
+        {/* Encouraging message for podcast step */}
+        {currentStep === 1 && (
           <div className="max-w-2xl mx-auto mt-4">
             <p className="text-center text-sm text-gray-500">
-              Please listen to at least 10% of the podcast to continue
+              {podcastStarted
+                ? "🎧 Great! You can continue listening anytime from your dashboard"
+                : "💡 We'll send you helpful science snippets as notifications to guide your journey"
+              }
             </p>
           </div>
         )}

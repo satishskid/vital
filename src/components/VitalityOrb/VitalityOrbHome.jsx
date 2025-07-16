@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiSettings, FiRefreshCw, FiTrendingUp, FiCalendar, FiTarget } from 'react-icons/fi';
+import { FiSettings, FiRefreshCw, FiTrendingUp, FiCalendar, FiTarget, FiPlay } from 'react-icons/fi';
 import SafeIcon from '../../common/SafeIcon';
 import VitalityOrb from './VitalityOrb';
 import VitalityInsights from './VitalityInsights';
 import VitalityRecommendations from './VitalityRecommendations';
 
-const VitalityOrbHome = ({ healthData, onThemeToggle }) => {
+const VitalityOrbHome = ({ healthData, onThemeToggle, onOpenPodcast }) => {
   const [vitalityState, setVitalityState] = useState(null);
   const [showInsights, setShowInsights] = useState(false);
   const [lastUpdated, setLastUpdated] = useState(new Date());
@@ -70,6 +70,18 @@ const VitalityOrbHome = ({ healthData, onThemeToggle }) => {
           </div>
           
           <div className="flex items-center space-x-3">
+            {onOpenPodcast && (
+              <motion.button
+                onClick={onOpenPodcast}
+                className="flex items-center space-x-2 px-3 py-2 bg-white bg-opacity-70 backdrop-blur-sm rounded-full shadow-sm"
+                whileTap={{ scale: 0.95 }}
+                title="Listen to Six Golden Habits podcast"
+              >
+                <SafeIcon icon={FiPlay} className="w-4 h-4 text-purple-700" />
+                <span className="text-sm font-medium text-purple-700">Podcast</span>
+              </motion.button>
+            )}
+
             <motion.button
               onClick={handleRefresh}
               className="p-2 bg-white bg-opacity-70 backdrop-blur-sm rounded-full shadow-sm"
@@ -78,7 +90,7 @@ const VitalityOrbHome = ({ healthData, onThemeToggle }) => {
             >
               <SafeIcon icon={FiRefreshCw} className="w-5 h-5 text-gray-700" />
             </motion.button>
-            
+
             <motion.button
               onClick={onThemeToggle}
               className="p-2 bg-white bg-opacity-70 backdrop-blur-sm rounded-full shadow-sm"
