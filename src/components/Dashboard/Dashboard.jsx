@@ -212,16 +212,17 @@ const Dashboard = ({ showWhyCard }) => {
     localStorage.setItem('vita-home-theme', newTheme ? 'vitality' : 'standard');
   };
 
-  // Prepare health data for Vitality Orb (now uses real data)
+  // Prepare health data for Vitality Orb (uses real data only)
   const getHealthDataForOrb = () => {
+    // Only return real data - no fallback mock data
     return healthData || {
-      sleep: { duration: 420, quality: 75 },
-      hrv: { readiness: 30 },
+      sleep: { duration: 0, quality: 0 },
+      hrv: { readiness: 0 },
       activity: { steps: 0, activeMinutes: 0 },
       mindfulness: { sessions: 0 },
       nutrition: { mealsLogged: 0, waterIntake: 0 },
-      mood: 3,
-      social: { socialWellnessScore: 50 }
+      mood: 0,
+      social: { socialWellnessScore: 0 }
     };
   };
 

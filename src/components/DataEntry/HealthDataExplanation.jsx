@@ -154,60 +154,63 @@ const HealthDataExplanation = ({ isOpen, onClose, showWhyCard }) => {
                       <SafeIcon icon={FiSmartphone} className="w-12 h-12 text-blue-600" />
                     </div>
                     <h3 className="text-xl font-bold text-gray-800 mb-2">
-                      Let Technology Help You
+                      Coming Soon: Smart Integration
                     </h3>
                     <p className="text-gray-600">
-                      Your phone can automatically capture health data while protecting your privacy
+                      Future versions will include automatic health data capture
                     </p>
                   </div>
 
-                  <div className="bg-blue-50 rounded-lg p-6 mb-6">
-                    <h4 className="font-semibold text-blue-800 mb-3">🚀 How It Works (Super Simple!)</h4>
-                    <div className="space-y-3 text-sm text-blue-700">
-                      <div className="flex items-center space-x-3">
-                        <div className="bg-blue-200 rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold">1</div>
-                        <span>You tap "Enable Smart Integration"</span>
+                  <div className="bg-amber-50 border border-amber-200 rounded-lg p-6 mb-6">
+                    <h4 className="font-semibold text-amber-800 mb-3">🚧 In Development</h4>
+                    <p className="text-sm text-amber-700 mb-3">
+                      We're working on smart integrations that will automatically capture your health data while maintaining complete privacy. For now, manual entry gives you the best control and accuracy.
+                    </p>
+                    <div className="space-y-2 text-sm text-amber-700">
+                      <div className="flex items-center space-x-2">
+                        <div className="w-2 h-2 bg-amber-500 rounded-full"></div>
+                        <span>Phone sensor integration (steps, movement)</span>
                       </div>
-                      <div className="flex items-center space-x-3">
-                        <div className="bg-blue-200 rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold">2</div>
-                        <span>Give permission when your phone asks</span>
+                      <div className="flex items-center space-x-2">
+                        <div className="w-2 h-2 bg-amber-500 rounded-full"></div>
+                        <span>Health app notification parsing</span>
                       </div>
-                      <div className="flex items-center space-x-3">
-                        <div className="bg-blue-200 rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold">3</div>
-                        <span>That's it! Vita handles everything else automatically</span>
+                      <div className="flex items-center space-x-2">
+                        <div className="w-2 h-2 bg-amber-500 rounded-full"></div>
+                        <span>Wearable device connections</span>
                       </div>
                     </div>
                   </div>
 
                   <div className="grid md:grid-cols-2 gap-6">
                     <div className="bg-green-50 rounded-lg p-4">
-                      <h4 className="font-semibold text-green-800 mb-2">📊 What Gets Captured</h4>
+                      <h4 className="font-semibold text-green-800 mb-2">✨ Why Manual Entry Works Better</h4>
                       <ul className="text-sm text-green-700 space-y-1">
-                        <li>• Steps and movement from your phone</li>
-                        <li>• Health app notifications (Apple Health, Fitbit, etc.)</li>
-                        <li>• Sleep patterns and activity data</li>
-                        <li>• Heart rate and wellness metrics</li>
+                        <li>• You know how you actually feel</li>
+                        <li>• No complex setup or permissions</li>
+                        <li>• Complete privacy and control</li>
+                        <li>• More accurate than device estimates</li>
                       </ul>
                     </div>
 
-                    <div className="bg-purple-50 rounded-lg p-4">
-                      <h4 className="font-semibold text-purple-800 mb-2">⚡ The Magic</h4>
-                      <ul className="text-sm text-purple-700 space-y-1">
-                        <li>• Works in the background automatically</li>
-                        <li>• No manual data entry needed</li>
-                        <li>• Combines data from multiple sources</li>
-                        <li>• Updates your vitality rings in real-time</li>
+                    <div className="bg-blue-50 rounded-lg p-4">
+                      <h4 className="font-semibold text-blue-800 mb-2">📱 Quick Daily Check-in</h4>
+                      <ul className="text-sm text-blue-700 space-y-1">
+                        <li>• Takes less than 2 minutes</li>
+                        <li>• Simple sliders and selections</li>
+                        <li>• Focus on how you feel, not numbers</li>
+                        <li>• Build awareness of your patterns</li>
                       </ul>
                     </div>
                   </div>
 
                   <div className="text-center">
                     <button
-                      onClick={() => handleLearnMore('automation')}
-                      className="text-blue-600 hover:text-blue-700 flex items-center space-x-1 mx-auto"
+                      onClick={() => handleLearnMore('manual')}
+                      className="text-green-600 hover:text-green-700 flex items-center space-x-1 mx-auto"
                     >
                       <SafeIcon icon={FiInfo} className="w-4 h-4" />
-                      <span>Learn more about smart automation</span>
+                      <span>Learn more about mindful health tracking</span>
                     </button>
                   </div>
                 </div>

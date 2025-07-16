@@ -4,7 +4,6 @@ import { FiPlus, FiTrendingUp, FiAward, FiBookOpen, FiDownload, FiCalendar, FiSe
 import { useAuth } from '../../context/FirebaseAuthContext';
 // import { reminderSystem } from '../../lib/reminderSystem';
 import HealthDataForm from './HealthDataForm';
-import ImportGuide from '../DataImport/ImportGuide';
 import HealthMetricInfo from '../Education/HealthMetricInfo';
 import HealthDataExplanation from '../DataEntry/HealthDataExplanation';
 
@@ -268,7 +267,47 @@ const ManualEntryDashboard = () => {
           </div>
         )}
 
-        {activeTab === 'import' && <ImportGuide />}
+        {activeTab === 'import' && (
+          <div className="space-y-6">
+            <div className="bg-white rounded-xl p-6 shadow-sm">
+              <h3 className="text-lg font-semibold text-gray-800 mb-4">Simple Health Tracking</h3>
+              <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+                <div className="flex items-start space-x-3">
+                  <SafeIcon icon={FiInfo} className="w-5 h-5 text-green-600 mt-0.5" />
+                  <div>
+                    <h4 className="font-semibold text-green-800 mb-1">Manual Entry Works Best</h4>
+                    <p className="text-sm text-green-700">
+                      You know your body better than any device. Manual entry gives you complete control
+                      and often provides more accurate insights than automated tracking.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="bg-blue-50 rounded-lg p-4">
+                  <h4 className="font-medium text-blue-800 mb-2">📱 Quick Daily Check-in</h4>
+                  <ul className="text-sm text-blue-700 space-y-1">
+                    <li>• Takes less than 2 minutes</li>
+                    <li>• Simple sliders and selections</li>
+                    <li>• Focus on how you feel, not numbers</li>
+                    <li>• Build awareness of your patterns</li>
+                  </ul>
+                </div>
+
+                <div className="bg-purple-50 rounded-lg p-4">
+                  <h4 className="font-medium text-purple-800 mb-2">🎯 What to Track</h4>
+                  <ul className="text-sm text-purple-700 space-y-1">
+                    <li>• Sleep quality and duration</li>
+                    <li>• Energy and mood levels</li>
+                    <li>• Physical activity and movement</li>
+                    <li>• Stress and recovery state</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {activeTab === 'learn' && (
           <div className="space-y-6">

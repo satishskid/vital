@@ -1,11 +1,8 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
-import supabase from '../lib/supabase';
+import { db } from '../lib/supabase';
+import { collection, query, where, getDocs, addDoc, updateDoc, deleteDoc, doc } from 'firebase/firestore';
 import { useAuth } from './FirebaseAuthContext';
 import { useTime } from './TimeContext';
-import { mockReminders } from '../data/mockData';
-
-// Import SUPABASE_URL for mock data checks
-const SUPABASE_URL = 'https://<PROJECT-ID>.supabase.co';
 
 const ReminderContext = createContext();
 
@@ -18,44 +15,44 @@ export const ReminderProvider = ({ children }) => {
   const [contextualMessage, setContextualMessage] = useState(null);
   const [loading, setLoading] = useState(true);
   
-  // Fetch reminders from database or use mock data
+  // Fetch reminders from Firebase
   useEffect(() => {
     const fetchReminders = async () => {
-      if (!user) {
+      if (!user?.uid) {
         setReminders([]);
         setLoading(false);
         return;
       }
-      
+
       try {
         setLoading(true);
-        
-        // Mock data if no Supabase connection
-        if (SUPABASE_URL === 'https://<PROJECT-ID>.supabase.co') {
-          setReminders(mockReminders);
-          setLoading(false);
-          return;
-        }
-        
-        // Real Supabase fetch
-        const { data, error } = await supabase
-          .from('reminders')
-          .select('*')
-          .eq('user_id', user.id)
-          .order('time', { ascending: true });
-          
-        if (error) throw error;
-        
-        setReminders(data || []);
+
+        // Firebase fetch
+        const q = query(
+          collection(db, 'reminders'),
+          where('user_id', '==', user.uid)
+        );
+
+        const querySnapshot = await getDocs(q);
+        const reminderData = [];
+        querySnapshot.forEach((doc) => {
+          reminderData.push({ id: doc.id, ...doc.data() });
+        });
+
+        // Sort by time
+        reminderData.sort((a, b) => a.time.localeCompare(b.time));
+
+        setReminders(reminderData);
       } catch (error) {
         console.error('Error fetching reminders:', error);
+        setReminders([]);
       } finally {
         setLoading(false);
       }
     };
-    
+
     fetchReminders();
-  }, [user]);
+  }, [user?.uid]);
   
   // Update contextual message based on time of day
   useEffect(() => {

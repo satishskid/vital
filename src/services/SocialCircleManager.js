@@ -20,13 +20,28 @@ class VitaSocialCircleManager {
     
     // Relationship types
     this.relationshipTypes = [
-      { id: 'family', label: 'Family', icon: '👨‍👩‍👧‍👦', priority: 1 },
-      { id: 'partner', label: 'Partner/Spouse', icon: '💕', priority: 1 },
-      { id: 'close_friend', label: 'Close Friend', icon: '👥', priority: 2 },
-      { id: 'friend', label: 'Friend', icon: '🤝', priority: 3 },
-      { id: 'colleague', label: 'Colleague', icon: '💼', priority: 4 },
-      { id: 'acquaintance', label: 'Acquaintance', icon: '👋', priority: 5 },
-      { id: 'other', label: 'Other', icon: '👤', priority: 6 }
+      { id: 'family', label: 'Family', icon: '👨‍👩‍👧‍👦', priority: 1, type: 'social' },
+      { id: 'partner', label: 'Partner/Spouse', icon: '💕', priority: 1, type: 'social' },
+      { id: 'close_friend', label: 'Close Friend', icon: '👥', priority: 2, type: 'social' },
+      { id: 'friend', label: 'Friend', icon: '🤝', priority: 3, type: 'social' },
+      { id: 'colleague', label: 'Colleague', icon: '💼', priority: 4, type: 'social' },
+      { id: 'acquaintance', label: 'Acquaintance', icon: '👋', priority: 5, type: 'social' },
+      { id: 'other', label: 'Other', icon: '👤', priority: 6, type: 'social' },
+      // Self-connection types
+      { id: 'hobby', label: 'Hobby/Passion', icon: '🎨', priority: 7, type: 'self' },
+      { id: 'me_time', label: 'Me Time', icon: '🧘', priority: 8, type: 'self' }
+    ];
+
+    // Hobby/Passion categories
+    this.hobbyCategories = [
+      { id: 'creative', label: 'Creative Arts', icon: '🎨', activities: ['painting', 'drawing', 'writing', 'photography', 'crafting', 'music'] },
+      { id: 'physical', label: 'Physical Activities', icon: '🏃', activities: ['running', 'yoga', 'dancing', 'hiking', 'cycling', 'swimming'] },
+      { id: 'intellectual', label: 'Learning & Growth', icon: '📚', activities: ['reading', 'studying', 'puzzles', 'languages', 'coding', 'research'] },
+      { id: 'nature', label: 'Nature & Outdoors', icon: '🌱', activities: ['gardening', 'birdwatching', 'camping', 'fishing', 'astronomy', 'hiking'] },
+      { id: 'mindful', label: 'Mindfulness & Wellness', icon: '🧘', activities: ['meditation', 'journaling', 'breathing', 'stretching', 'spa', 'reflection'] },
+      { id: 'social_hobbies', label: 'Social Hobbies', icon: '🎲', activities: ['board_games', 'volunteering', 'clubs', 'sports', 'cooking', 'travel'] },
+      { id: 'technical', label: 'Technical & Building', icon: '🔧', activities: ['woodworking', 'electronics', 'programming', 'mechanics', '3d_printing', 'robotics'] },
+      { id: 'entertainment', label: 'Entertainment', icon: '🎬', activities: ['movies', 'tv_shows', 'podcasts', 'gaming', 'concerts', 'theater'] }
     ];
     
     this.loadData();
@@ -81,19 +96,94 @@ class VitaSocialCircleManager {
         createdAt: new Date(),
         lastContact: null,
         interactionCount: 0,
-        userId: this.userId
+        userId: this.userId,
+        type: 'social' // social, hobby, me_time
       };
 
       const circleRef = collection(db, 'users', this.userId, 'social_circle');
       const docRef = await addDoc(circleRef, contact);
-      
+
       contact.id = docRef.id;
       this.socialCircle.push(contact);
-      
+
       console.log('Contact added to social circle:', contact.name);
       return contact;
     } catch (error) {
       console.error('Error adding contact:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Add a hobby/passion as a virtual contact
+   */
+  async addHobby(hobbyData) {
+    try {
+      const hobby = {
+        name: hobbyData.name,
+        nickname: hobbyData.nickname || hobbyData.name,
+        relationship: 'hobby',
+        category: hobbyData.category,
+        description: hobbyData.description || '',
+        benefits: hobbyData.benefits || [],
+        privacyLevel: 'private', // Always private for hobbies
+        trackingEnabled: true,
+        notes: hobbyData.notes || '',
+        createdAt: new Date(),
+        lastActivity: null,
+        activityCount: 0,
+        totalTimeSpent: 0, // in minutes
+        userId: this.userId,
+        type: 'hobby',
+        icon: hobbyData.icon || '🎨'
+      };
+
+      const circleRef = collection(db, 'users', this.userId, 'social_circle');
+      const docRef = await addDoc(circleRef, hobby);
+
+      hobby.id = docRef.id;
+      this.socialCircle.push(hobby);
+
+      console.log('Hobby added to social circle:', hobby.name);
+      return hobby;
+    } catch (error) {
+      console.error('Error adding hobby:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Add Me Time as a virtual contact
+   */
+  async addMeTime() {
+    try {
+      const meTime = {
+        name: 'Me Time',
+        nickname: 'Personal Wellness Time',
+        relationship: 'me_time',
+        description: 'Private time for personal wellness and self-care',
+        privacyLevel: 'private',
+        trackingEnabled: true,
+        notes: 'Completely private - no details shared',
+        createdAt: new Date(),
+        lastActivity: null,
+        activityCount: 0,
+        totalTimeSpent: 0,
+        userId: this.userId,
+        type: 'me_time',
+        icon: '🧘'
+      };
+
+      const circleRef = collection(db, 'users', this.userId, 'social_circle');
+      const docRef = await addDoc(circleRef, meTime);
+
+      meTime.id = docRef.id;
+      this.socialCircle.push(meTime);
+
+      console.log('Me Time added to social circle');
+      return meTime;
+    } catch (error) {
+      console.error('Error adding Me Time:', error);
       throw error;
     }
   }
@@ -181,6 +271,50 @@ class VitaSocialCircleManager {
   }
 
   /**
+   * Log self-connection activity (hobby or me-time)
+   */
+  async logSelfActivity(activityData) {
+    try {
+      const activity = {
+        contactId: activityData.contactId, // hobby or me-time contact ID
+        contactName: activityData.contactName,
+        type: activityData.type, // 'hobby_time', 'me_time'
+        duration: activityData.duration, // in minutes
+        timestamp: activityData.timestamp || new Date(),
+        quality: activityData.quality || 'good', // poor, okay, good, excellent
+        mood: activityData.mood || 'neutral', // before/after mood
+        notes: activityData.notes || '',
+        benefits: activityData.benefits || [], // selected benefits experienced
+        private: activityData.type === 'me_time', // me-time is always private
+        userId: this.userId
+      };
+
+      const interactionsRef = collection(db, 'users', this.userId, 'social_interactions');
+      const docRef = await addDoc(interactionsRef, activity);
+
+      activity.id = docRef.id;
+      this.socialInteractions.push(activity);
+
+      // Update hobby/me-time contact stats
+      const contact = this.socialCircle.find(c => c.id === activityData.contactId);
+      if (contact) {
+        const newTotalTime = (contact.totalTimeSpent || 0) + activityData.duration;
+        await this.updateContact(contact.id, {
+          lastActivity: activity.timestamp,
+          activityCount: (contact.activityCount || 0) + 1,
+          totalTimeSpent: newTotalTime
+        });
+      }
+
+      console.log('Self-connection activity logged:', activity.type, 'for', activity.duration, 'minutes');
+      return activity;
+    } catch (error) {
+      console.error('Error logging self activity:', error);
+      throw error;
+    }
+  }
+
+  /**
    * Update privacy settings
    */
   async updatePrivacySettings(newSettings) {
@@ -242,6 +376,34 @@ class VitaSocialCircleManager {
   }
 
   /**
+   * Get only social contacts (people)
+   */
+  getSocialContacts() {
+    return this.socialCircle.filter(c => c.type === 'social' || !c.type);
+  }
+
+  /**
+   * Get only hobbies/passions
+   */
+  getHobbies() {
+    return this.socialCircle.filter(c => c.type === 'hobby');
+  }
+
+  /**
+   * Get me-time entries
+   */
+  getMeTime() {
+    return this.socialCircle.filter(c => c.type === 'me_time');
+  }
+
+  /**
+   * Get all self-connection activities (hobbies + me-time)
+   */
+  getSelfConnectionActivities() {
+    return this.socialCircle.filter(c => c.type === 'hobby' || c.type === 'me_time');
+  }
+
+  /**
    * Get recent social interactions
    */
   getRecentInteractions(days = 7) {
@@ -254,12 +416,16 @@ class VitaSocialCircleManager {
   }
 
   /**
-   * Get social wellness metrics
+   * Get social wellness metrics including self-connection
    */
   getSocialWellnessMetrics(days = 7) {
     const recentInteractions = this.getRecentInteractions(days);
-    const uniqueContacts = new Set(recentInteractions.map(i => i.contactId));
-    
+    const socialInteractions = recentInteractions.filter(i => !['hobby_time', 'me_time'].includes(i.type));
+    const selfInteractions = recentInteractions.filter(i => ['hobby_time', 'me_time'].includes(i.type));
+
+    const uniqueContacts = new Set(socialInteractions.map(i => i.contactId));
+    const uniqueHobbies = new Set(selfInteractions.map(i => i.contactId));
+
     // Calculate interaction types
     const interactionTypes = recentInteractions.reduce((acc, interaction) => {
       acc[interaction.type] = (acc[interaction.type] || 0) + 1;
@@ -267,25 +433,58 @@ class VitaSocialCircleManager {
     }, {});
 
     // Calculate daily averages
-    const dailyInteractions = recentInteractions.length / days;
+    const dailySocialInteractions = socialInteractions.length / days;
+    const dailySelfInteractions = selfInteractions.length / days;
     const dailyUniqueContacts = uniqueContacts.size / days;
 
-    // Get contacts not contacted recently
-    const staleContacts = this.socialCircle.filter(contact => {
+    // Calculate self-connection time
+    const totalSelfTime = selfInteractions.reduce((total, interaction) =>
+      total + (interaction.duration || 0), 0);
+    const dailySelfTime = totalSelfTime / days;
+
+    // Get contacts not contacted recently (social only)
+    const staleContacts = this.getSocialContacts().filter(contact => {
       if (!contact.lastContact) return true;
       const daysSinceContact = (new Date() - contact.lastContact) / (1000 * 60 * 60 * 24);
       return daysSinceContact > 7; // Haven't contacted in a week
     });
 
+    // Get neglected hobbies
+    const neglectedHobbies = this.getHobbies().filter(hobby => {
+      if (!hobby.lastActivity) return true;
+      const daysSinceActivity = (new Date() - hobby.lastActivity) / (1000 * 60 * 60 * 24);
+      return daysSinceActivity > 14; // Haven't done in 2 weeks
+    });
+
     return {
       totalInteractions: recentInteractions.length,
+      socialInteractions: socialInteractions.length,
+      selfInteractions: selfInteractions.length,
       uniqueContactsReached: uniqueContacts.size,
-      dailyAverageInteractions: Math.round(dailyInteractions * 10) / 10,
+      uniqueHobbiesEngaged: uniqueHobbies.size,
+      dailyAverageSocial: Math.round(dailySocialInteractions * 10) / 10,
+      dailyAverageSelf: Math.round(dailySelfInteractions * 10) / 10,
       dailyAverageContacts: Math.round(dailyUniqueContacts * 10) / 10,
+      dailySelfTimeMinutes: Math.round(dailySelfTime),
       interactionTypes,
-      staleContacts: staleContacts.slice(0, 5), // Top 5 to reconnect with
-      socialWellnessScore: this.calculateSocialWellnessScore(recentInteractions, uniqueContacts.size)
+      staleContacts: staleContacts.slice(0, 5),
+      neglectedHobbies: neglectedHobbies.slice(0, 3),
+      socialWellnessScore: this.calculateHolisticWellnessScore(socialInteractions, selfInteractions, uniqueContacts.size, uniqueHobbies.size),
+      balance: this.calculateSocialSelfBalance(socialInteractions.length, selfInteractions.length)
     };
+  }
+
+  /**
+   * Calculate holistic wellness score including self-connection (0-100)
+   */
+  calculateHolisticWellnessScore(socialInteractions, selfInteractions, uniqueContacts, uniqueHobbies) {
+    // Social connection score (0-50)
+    const socialScore = this.calculateSocialWellnessScore(socialInteractions, uniqueContacts) * 0.5;
+
+    // Self-connection score (0-50)
+    const selfScore = this.calculateSelfConnectionScore(selfInteractions, uniqueHobbies);
+
+    return Math.round(socialScore + selfScore);
   }
 
   /**
@@ -322,6 +521,69 @@ class VitaSocialCircleManager {
     );
     
     return Math.round(totalScore);
+  }
+
+  /**
+   * Calculate self-connection score (0-50)
+   */
+  calculateSelfConnectionScore(selfInteractions, uniqueHobbies) {
+    // Frequency score (0-15)
+    const frequencyScore = Math.min(selfInteractions.length / 7, 3) * 5; // Up to 15 points for 3+ activities per week
+
+    // Diversity score (0-10)
+    const diversityScore = Math.min(uniqueHobbies, 2) * 5; // Up to 10 points for 2+ different hobbies
+
+    // Duration/quality score (0-15)
+    const totalDuration = selfInteractions.reduce((total, activity) => total + (activity.duration || 0), 0);
+    const averageDuration = selfInteractions.length > 0 ? totalDuration / selfInteractions.length : 0;
+    const durationScore = Math.min(averageDuration / 30, 1) * 15; // Up to 15 points for 30+ min average
+
+    // Consistency score (0-10)
+    const daysWithSelfTime = new Set(
+      selfInteractions.map(i => i.timestamp.toDateString())
+    ).size;
+    const consistencyScore = Math.min(daysWithSelfTime / 7, 1) * 10; // Up to 10 points for daily self-time
+
+    return Math.round(frequencyScore + diversityScore + durationScore + consistencyScore);
+  }
+
+  /**
+   * Calculate balance between social and self-connection
+   */
+  calculateSocialSelfBalance(socialCount, selfCount) {
+    const total = socialCount + selfCount;
+    if (total === 0) return { status: 'inactive', socialRatio: 0, selfRatio: 0 };
+
+    const socialRatio = socialCount / total;
+    const selfRatio = selfCount / total;
+
+    let status = 'balanced';
+    if (socialRatio > 0.8) status = 'social_heavy';
+    else if (selfRatio > 0.8) status = 'self_heavy';
+    else if (socialRatio < 0.2) status = 'needs_social';
+    else if (selfRatio < 0.2) status = 'needs_self_time';
+
+    return {
+      status,
+      socialRatio: Math.round(socialRatio * 100),
+      selfRatio: Math.round(selfRatio * 100),
+      recommendation: this.getBalanceRecommendation(status)
+    };
+  }
+
+  /**
+   * Get balance recommendation based on status
+   */
+  getBalanceRecommendation(status) {
+    const recommendations = {
+      balanced: 'Great balance between social connections and personal time!',
+      social_heavy: 'Consider scheduling some personal time for hobbies or self-care.',
+      self_heavy: 'You might benefit from reaching out to friends or family.',
+      needs_social: 'Try connecting with someone you care about today.',
+      needs_self_time: 'Make time for activities you enjoy or some peaceful moments.',
+      inactive: 'Start with either a quick check-in with someone or a few minutes for yourself.'
+    };
+    return recommendations[status] || recommendations.balanced;
   }
 
   /**

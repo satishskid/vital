@@ -131,7 +131,7 @@ src/
 │   └── ...
 ├── context/               # React context providers
 ├── lib/                   # Utilities and services
-│   ├── supabase.js       # Supabase client
+│   ├── supabase.js       # Firebase client (legacy filename)
 │   └── reminderSystem.js # Notification system
 └── ...
 ```

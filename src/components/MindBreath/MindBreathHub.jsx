@@ -1,13 +1,64 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import * as FiIcons from 'react-icons/fi';
 import SafeIcon from '../../common/SafeIcon';
 import BreathingSession from './BreathingSession';
+import { useAuth } from '../../context/FirebaseAuthContext';
+import HealthDataService from '../../services/HealthDataService';
 
 const { FiHeart, FiWind, FiSun, FiMoon, FiPlay, FiInfo, FiClock } = FiIcons;
 
 const MindBreathHub = ({ showWhyCard }) => {
   const [activeSession, setActiveSession] = useState(null);
+  const [weeklyProgress, setWeeklyProgress] = useState([]);
+  const [totalSessions, setTotalSessions] = useState(0);
+  const { user } = useAuth();
+
+  // Load breathing session data
+  useEffect(() => {
+    const loadBreathingData = async () => {
+      if (!user?.uid) return;
+
+      try {
+        const healthService = new HealthDataService(user.uid);
+
+        // Get this week's breathing sessions
+        const startOfWeek = new Date();
+        startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
+        startOfWeek.setHours(0, 0, 0, 0);
+
+        const endOfWeek = new Date(startOfWeek);
+        endOfWeek.setDate(endOfWeek.getDate() + 6);
+        endOfWeek.setHours(23, 59, 59, 999);
+
+        // Get health entries for this week
+        const weeklyEntries = await healthService.getHealthEntriesInRange(startOfWeek, endOfWeek);
+
+        // Process breathing sessions by day
+        const dailyProgress = Array(7).fill(false);
+        let sessionCount = 0;
+
+        weeklyEntries.forEach(entry => {
+          if (entry.breathing_sessions && entry.breathing_sessions > 0) {
+            const entryDate = entry.date.toDate();
+            const dayOfWeek = entryDate.getDay();
+            dailyProgress[dayOfWeek] = true;
+            sessionCount += entry.breathing_sessions;
+          }
+        });
+
+        setWeeklyProgress(dailyProgress);
+        setTotalSessions(sessionCount);
+      } catch (error) {
+        console.error('Error loading breathing data:', error);
+        // Set empty state on error
+        setWeeklyProgress(Array(7).fill(false));
+        setTotalSessions(0);
+      }
+    };
+
+    loadBreathingData();
+  }, [user?.uid]);
 
   const sessions = [
     {
@@ -198,17 +249,23 @@ const MindBreathHub = ({ showWhyCard }) => {
               <div key={day} className="text-center">
                 <div className="text-xs text-gray-500 mb-1">{day}</div>
                 <div className={`w-8 h-8 rounded-full mx-auto flex items-center justify-center ${
-                  index < 4 ? 'bg-purple-500 text-white' : 'bg-gray-200'
+                  weeklyProgress[index] ? 'bg-purple-500 text-white' : 'bg-gray-200'
                 }`}>
-                  {index < 4 && <SafeIcon icon={FiHeart} className="w-4 h-4" />}
+                  {weeklyProgress[index] && <SafeIcon icon={FiHeart} className="w-4 h-4" />}
                 </div>
               </div>
             ))}
           </div>
           <div className="mt-4 text-center">
-            <p className="text-sm text-gray-600">
-              <span className="font-semibold text-purple-600">4 sessions</span> completed this week
-            </p>
+            {totalSessions > 0 ? (
+              <p className="text-sm text-gray-600">
+                <span className="font-semibold text-purple-600">{totalSessions} session{totalSessions !== 1 ? 's' : ''}</span> completed this week
+              </p>
+            ) : (
+              <p className="text-sm text-gray-500">
+                No breathing sessions this week yet. Start your first session above!
+              </p>
+            )}
           </div>
         </div>
       </div>

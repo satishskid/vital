@@ -2,13 +2,20 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import * as FiIcons from 'react-icons/fi';
 import SafeIcon from '../../common/SafeIcon';
+import { useAuth } from '../../context/FirebaseAuthContext';
+import VitaSocialCircleManager from '../../services/SocialCircleManager';
 
-const { FiHeart, FiUsers, FiArrowRight, FiCheck } = FiIcons;
+const { FiHeart, FiUsers, FiArrowRight, FiCheck, FiUserPlus } = FiIcons;
 
 const Onboarding = ({ onComplete }) => {
+  const { user } = useAuth();
   const [currentStep, setCurrentStep] = useState(0);
   const [selectedGoals, setSelectedGoals] = useState([]);
   const [selectedBarriers, setSelectedBarriers] = useState([]);
+  const [showInviteForm, setShowInviteForm] = useState(false);
+  const [inviteEmail, setInviteEmail] = useState('');
+  const [inviteRelationship, setInviteRelationship] = useState('friend');
+  const [inviteLoading, setInviteLoading] = useState(false);
 
   const steps = [
     {
@@ -69,11 +76,39 @@ const Onboarding = ({ onComplete }) => {
   };
 
   const handleBarrierToggle = (barrier) => {
-    setSelectedBarriers(prev => 
-      prev.includes(barrier) 
+    setSelectedBarriers(prev =>
+      prev.includes(barrier)
         ? prev.filter(b => b !== barrier)
         : [...prev, barrier]
     );
+  };
+
+  const handleInviteFriend = async () => {
+    if (!inviteEmail.trim()) {
+      alert('Please enter an email address');
+      return;
+    }
+
+    setInviteLoading(true);
+    try {
+      const socialManager = new VitaSocialCircleManager(user.uid);
+      await socialManager.addContact({
+        name: inviteEmail.split('@')[0], // Use email prefix as name
+        email: inviteEmail,
+        relationship: inviteRelationship,
+        trackingEnabled: true,
+        privacyLevel: 'standard'
+      });
+
+      alert('Friend invited successfully! They will appear in your support circle once they join.');
+      setInviteEmail('');
+      setShowInviteForm(false);
+    } catch (error) {
+      console.error('Error inviting friend:', error);
+      alert('Failed to send invite. Please try again.');
+    } finally {
+      setInviteLoading(false);
+    }
   };
 
   const nextStep = () => {
@@ -239,12 +274,57 @@ const Onboarding = ({ onComplete }) => {
                       </p>
                     </div>
                   </div>
-                  <motion.button
-                    className="w-full bg-blue-500 text-white py-3 rounded-lg font-medium mb-4"
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    Invite Friends
-                  </motion.button>
+
+                  {!showInviteForm ? (
+                    <motion.button
+                      onClick={() => setShowInviteForm(true)}
+                      className="w-full bg-blue-500 text-white py-3 rounded-lg font-medium mb-4 flex items-center justify-center space-x-2"
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      <SafeIcon icon={FiUserPlus} className="w-5 h-5" />
+                      <span>Invite Friends</span>
+                    </motion.button>
+                  ) : (
+                    <div className="space-y-4 mb-4">
+                      <div className="space-y-3">
+                        <input
+                          type="email"
+                          placeholder="Friend's email address"
+                          value={inviteEmail}
+                          onChange={(e) => setInviteEmail(e.target.value)}
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        />
+                        <select
+                          value={inviteRelationship}
+                          onChange={(e) => setInviteRelationship(e.target.value)}
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        >
+                          <option value="friend">Friend</option>
+                          <option value="family">Family</option>
+                          <option value="partner">Partner</option>
+                          <option value="close_friend">Close Friend</option>
+                        </select>
+                      </div>
+                      <div className="flex space-x-3">
+                        <motion.button
+                          onClick={handleInviteFriend}
+                          disabled={inviteLoading}
+                          className="flex-1 bg-blue-500 text-white py-3 rounded-lg font-medium disabled:opacity-50"
+                          whileTap={{ scale: 0.98 }}
+                        >
+                          {inviteLoading ? 'Sending...' : 'Send Invite'}
+                        </motion.button>
+                        <motion.button
+                          onClick={() => setShowInviteForm(false)}
+                          className="px-4 py-3 border border-gray-300 rounded-lg text-gray-600"
+                          whileTap={{ scale: 0.98 }}
+                        >
+                          Cancel
+                        </motion.button>
+                      </div>
+                    </div>
+                  )}
+
                   <button
                     onClick={nextStep}
                     className="text-gray-500 text-sm"

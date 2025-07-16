@@ -174,25 +174,28 @@ class VitalityStateEngine {
    * Calculate sleep quality score (0-100)
    */
   calculateSleepScore(sleepData) {
-    let score = 50; // Base score
-    
-    // Duration score (7-9 hours optimal)
-    if (sleepData.duration) {
-      const hours = sleepData.duration / 60;
-      if (hours >= 7 && hours <= 9) {
-        score += 25;
-      } else if (hours >= 6 && hours <= 10) {
-        score += 15;
-      } else if (hours >= 5 && hours <= 11) {
-        score += 5;
-      }
+    // Return 0 if no sleep data
+    if (!sleepData.duration || sleepData.duration === 0) {
+      return 0;
     }
-    
+
+    let score = 50; // Base score
+
+    // Duration score (7-9 hours optimal)
+    const hours = sleepData.duration / 60;
+    if (hours >= 7 && hours <= 9) {
+      score += 25;
+    } else if (hours >= 6 && hours <= 10) {
+      score += 15;
+    } else if (hours >= 5 && hours <= 11) {
+      score += 5;
+    }
+
     // Quality indicators
-    if (sleepData.quality) {
+    if (sleepData.quality && sleepData.quality > 0) {
       score += (sleepData.quality / 100) * 25;
     }
-    
+
     return Math.min(100, Math.max(0, score));
   }
 
@@ -200,15 +203,20 @@ class VitalityStateEngine {
    * Calculate HRV score (0-100)
    */
   calculateHRVScore(hrvData) {
-    let score = 50;
-    
-    if (hrvData.readiness) {
+    // Return 0 if no HRV data
+    if (!hrvData.readiness && !hrvData.rmssd) {
+      return 0;
+    }
+
+    let score = 0;
+
+    if (hrvData.readiness && hrvData.readiness > 0) {
       score = hrvData.readiness;
-    } else if (hrvData.rmssd) {
+    } else if (hrvData.rmssd && hrvData.rmssd > 0) {
       // Simplified HRV scoring based on RMSSD
       score = Math.min(100, Math.max(0, (hrvData.rmssd / 50) * 100));
     }
-    
+
     return score;
   }
 
@@ -216,20 +224,26 @@ class VitalityStateEngine {
    * Calculate activity score (0-100)
    */
   calculateActivityScore(activityData) {
+    // Return 0 if no activity data
+    if ((!activityData.steps || activityData.steps === 0) &&
+        (!activityData.activeMinutes || activityData.activeMinutes === 0)) {
+      return 0;
+    }
+
     let score = 0;
-    
+
     // Steps contribution (40%)
-    if (activityData.steps) {
+    if (activityData.steps && activityData.steps > 0) {
       const stepScore = Math.min(100, (activityData.steps / 10000) * 100);
       score += stepScore * 0.4;
     }
-    
+
     // Active minutes contribution (60%)
-    if (activityData.activeMinutes) {
+    if (activityData.activeMinutes && activityData.activeMinutes > 0) {
       const activeScore = Math.min(100, (activityData.activeMinutes / 30) * 100);
       score += activeScore * 0.6;
     }
-    
+
     return Math.min(100, score);
   }
 

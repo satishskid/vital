@@ -298,17 +298,41 @@ class HealthDataService {
   }
 
   /**
+   * Get health entries within a date range
+   */
+  async getHealthEntriesInRange(startDate, endDate) {
+    try {
+      const q = query(
+        collection(db, 'health_entries'),
+        where('user_id', '==', this.userId),
+        where('entry_date', '>=', startDate),
+        where('entry_date', '<=', endDate),
+        orderBy('entry_date', 'desc')
+      );
+
+      const querySnapshot = await getDocs(q);
+      return querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+    } catch (error) {
+      console.error('Error fetching health entries in range:', error);
+      return [];
+    }
+  }
+
+  /**
    * Get default vitality data when no real data is available
    */
   getDefaultVitalityData() {
     return {
-      sleep: { duration: 420, quality: 75 },
-      hrv: { readiness: 30 },
-      activity: { steps: 5000, activeMinutes: 20 },
+      sleep: { duration: 0, quality: 0 },
+      hrv: { readiness: 0 },
+      activity: { steps: 0, activeMinutes: 0 },
       mindfulness: { sessions: 0 },
-      nutrition: { mealsLogged: 2, waterIntake: 6 },
-      mood: 3,
-      social: { socialWellnessScore: 50 }
+      nutrition: { mealsLogged: 0, waterIntake: 0 },
+      mood: 0,
+      social: { socialWellnessScore: 0 }
     };
   }
 
