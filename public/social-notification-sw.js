@@ -1,3 +1,5 @@
+/* eslint-env serviceworker */
+/* global clients */
 /**
  * Vita Social Notification Service Worker
  * Privacy-first social interaction detection from app notifications

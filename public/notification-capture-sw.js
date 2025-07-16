@@ -1,3 +1,5 @@
+/* eslint-env serviceworker */
+/* global clients */
 /**
  * Vita Health App - Notification Intelligence Service Worker
  * Captures and processes health data from app notifications

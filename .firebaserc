@@ -1,5 +1,19 @@
 {
   "projects": {
-    "default": "vital-b788d"
+    "default": "vital-b788d",
+    "staging": "vital-b788d",
+    "production": "vital-b788d"
+  },
+  "targets": {
+    "vital-b788d": {
+      "hosting": {
+        "staging": [
+          "vital-staging"
+        ],
+        "production": [
+          "vital-production"
+        ]
+      }
+    }
   }
 }

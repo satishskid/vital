@@ -1,3 +1,5 @@
+/* eslint-env serviceworker */
+/* global clients */
 // Service Worker for Vita Health App
 // Handles push notifications and offline functionality
 

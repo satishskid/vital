@@ -218,15 +218,10 @@ class ReminderSystem {
   }
 
   async calculateUserStreak(userId) {
-    try {
-      // Simplified streak calculation for Firebase
-      // For now, return basic streak data
-      // TODO: Implement full Firebase-based streak calculation
-      return { currentStreak: 0, longestStreak: 0 };
-    } catch (error) {
-      console.error('Error calculating user streak:', error);
-      return { currentStreak: 0, longestStreak: 0 };
-    }
+    // Simplified streak calculation for Firebase
+    // For now, return basic streak data
+    // TODO: Implement full Firebase-based streak calculation
+    return { currentStreak: 0, longestStreak: 0 };
   }
 
   async getAchievements(userId) {
@@ -342,7 +337,7 @@ class ReminderSystem {
 
     if (event.action === 'log_data') {
       // Open the app to log data
-      clients.openWindow('/dashboard');
+      window.open('/dashboard', '_blank');
     } else if (event.action === 'snooze') {
       // Reschedule notification for 1 hour later
       const reminder = {
@@ -358,7 +353,7 @@ class ReminderSystem {
       }, 60 * 60 * 1000); // 1 hour
     } else {
       // Default action - open the app
-      clients.openWindow('/dashboard');
+      window.open('/dashboard', '_blank');
     }
   }
 }
