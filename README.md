@@ -55,9 +55,9 @@ Vita Health App is a privacy-first health tracking application that puts you in 
 ## 🚀 Quick Start
 
 ### Prerequisites
-- Node.js 18+ 
+- Node.js 18+
 - npm or yarn
-- Supabase account
+- Firebase account
 
 ### Installation
 
@@ -72,16 +72,15 @@ Vita Health App is a privacy-first health tracking application that puts you in 
    npm install
    ```
 
-3. **Set up Supabase**
-   - Create a new project at [supabase.com](https://supabase.com)
-   - Run the SQL script from `supabase-setup.sql` in your Supabase SQL editor
-   - Copy your project URL and anon key
+3. **Set up Firebase**
+   - Create a new project at [firebase.google.com](https://firebase.google.com)
+   - Enable Authentication and Firestore Database
+   - Copy your Firebase configuration
 
 4. **Configure environment**
    ```bash
-   # Create .env file
-   REACT_APP_SUPABASE_URL=your_supabase_project_url
-   REACT_APP_SUPABASE_ANON_KEY=your_supabase_anon_key
+   # Firebase configuration is included in the build
+   # No additional environment variables needed
    ```
 
 5. **Start development server**
@@ -106,9 +105,9 @@ For complete setup instructions, see [VERSION-1-SETUP.md](VERSION-1-SETUP.md)
 - **React Icons**: Comprehensive icon library
 
 ### Backend
-- **Supabase**: PostgreSQL database with real-time capabilities
-- **Row Level Security**: Complete data isolation between users
-- **Authentication**: Secure email/password auth with session management
+- **Firebase**: NoSQL database with real-time capabilities
+- **Firestore Security Rules**: Complete data isolation between users
+- **Authentication**: Secure email/password + Google OAuth
 - **Real-time**: Live updates when data changes
 
 ### PWA Features
@@ -131,7 +130,7 @@ src/
 │   └── ...
 ├── context/               # React context providers
 ├── lib/                   # Utilities and services
-│   ├── supabase.js       # Firebase client (legacy filename)
+│   ├── firebase.js       # Firebase client configuration
 │   └── reminderSystem.js # Notification system
 └── ...
 ```

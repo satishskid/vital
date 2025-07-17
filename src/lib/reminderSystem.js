@@ -1,4 +1,4 @@
-import { db } from './supabase';
+import { db } from './firebase';
 import {
   collection,
   doc,

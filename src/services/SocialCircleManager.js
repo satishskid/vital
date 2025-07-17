@@ -4,7 +4,7 @@
  */
 
 import { collection, addDoc, updateDoc, deleteDoc, doc, getDocs, query, where, orderBy } from 'firebase/firestore';
-import { db } from '../lib/supabase';
+import { db } from '../lib/firebase';
 
 class VitaSocialCircleManager {
   constructor(userId) {

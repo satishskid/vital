@@ -19,7 +19,7 @@ import {
   orderBy,
   limit
 } from 'firebase/firestore';
-import { auth, db, googleProvider } from '../lib/supabase';
+import { auth, db, googleProvider } from '../lib/firebase';
 
 const AuthContext = createContext();
 

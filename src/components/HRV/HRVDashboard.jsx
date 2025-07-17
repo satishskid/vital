@@ -5,7 +5,7 @@ import SafeIcon from '../../common/SafeIcon';
 import CameraHRV from './CameraHRV';
 import { useAuth } from '../../context/FirebaseAuthContext';
 import { collection, addDoc, query, orderBy, limit, getDocs, where } from 'firebase/firestore';
-import { db } from '../../lib/supabase';
+import { db } from '../../lib/firebase';
 
 const HRVDashboard = () => {
   const { user } = useAuth();

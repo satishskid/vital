@@ -10,6 +10,7 @@ import { ReminderProvider } from './context/ReminderContext';
 import { SocialProvider } from './context/SocialContext';
 
 // Components
+import ErrorBoundary from './components/ErrorBoundary';
 import AuthScreen from './components/Auth/AuthScreen';
 import Onboarding from './components/Onboarding/Onboarding';
 import Dashboard from './components/Dashboard/Dashboard';
@@ -312,15 +313,17 @@ function AppContent() {
 // Wrapped App with context providers
 function App() {
   return (
-    <AuthProvider>
-      <TimeProvider>
-        <ReminderProvider>
-          <SocialProvider>
-            <AppContent />
-          </SocialProvider>
-        </ReminderProvider>
-      </TimeProvider>
-    </AuthProvider>
+    <ErrorBoundary>
+      <AuthProvider>
+        <TimeProvider>
+          <ReminderProvider>
+            <SocialProvider>
+              <AppContent />
+            </SocialProvider>
+          </ReminderProvider>
+        </TimeProvider>
+      </AuthProvider>
+    </ErrorBoundary>
   );
 }
 

@@ -72,13 +72,14 @@ import '@testing-library/jest-dom'
 import { vi } from 'vitest'
 
 // Mock Firebase
-vi.mock('../lib/supabase', () => ({
+vi.mock('../lib/firebase', () => ({
   auth: {
     currentUser: null,
     onAuthStateChanged: vi.fn(),
   },
   db: {},
   analytics: {},
+  googleProvider: {},
 }))
 
 // Mock IntersectionObserver

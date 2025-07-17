@@ -16,7 +16,7 @@ import {
   updateDoc,
   Timestamp
 } from 'firebase/firestore';
-import { db } from '../lib/supabase';
+import { db } from '../lib/firebase';
 
 class HealthDataService {
   constructor(userId) {
