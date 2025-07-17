@@ -4,64 +4,92 @@ import { useNavigate } from 'react-router-dom';
 import * as FiIcons from 'react-icons/fi';
 import SafeIcon from '../../common/SafeIcon';
 
-const { FiActivity, FiHeart, FiPlus, FiCoffee } = FiIcons;
+const { FiSun, FiActivity, FiZap, FiMoon, FiBrain, FiSmile, FiEdit3 } = FiIcons;
 
 const QuickActions = ({ showWhyCard }) => {
   const navigate = useNavigate();
 
-  const actions = [
+  // Actions aligned with six neuroscience-backed longevity habits
+  const longevityActions = [
     {
+      habit: 'Circadian Rhythm',
+      color: 'from-yellow-400 to-orange-500',
+      icon: FiSun,
+      label: 'Light & Timing',
+      description: 'Circadian optimization',
+      action: () => navigate('/circadian-tracking')
+    },
+    {
+      habit: 'Intentional Movement',
+      color: 'from-green-400 to-emerald-500',
       icon: FiActivity,
-      label: 'HRV Check',
-      color: 'bg-blue-500',
-      action: () => navigate('/hrv')
+      label: 'Move & Think',
+      description: 'Cognitive movement',
+      action: () => navigate('/activity')
     },
     {
-      icon: FiHeart,
-      label: 'Breathwork',
-      color: 'bg-purple-500',
-      action: () => navigate('/mind-breath')
+      habit: 'Controlled Stress',
+      color: 'from-red-400 to-pink-500',
+      icon: FiZap,
+      label: 'Stress & Recover',
+      description: 'HRV resilience',
+      action: () => navigate('/camera-hrv')
     },
     {
-      icon: FiCoffee,
-      label: 'Log Meal',
-      color: 'bg-emerald-500',
-      action: () => showWhyCard({
-        title: 'Meal Logging',
-        content: 'Mindful eating and tracking helps build awareness of how different foods affect your energy, mood, and overall well-being.',
-        source: 'Mindful Eating Research (2019)'
-      })
+      habit: 'Quality Sleep',
+      color: 'from-indigo-400 to-purple-500',
+      icon: FiMoon,
+      label: 'Brain Detox',
+      description: 'Sleep optimization',
+      action: () => navigate('/sleep-tracking')
     },
     {
-      icon: FiPlus,
-      label: 'Quick Log',
-      color: 'bg-orange-500',
-      action: () => showWhyCard({
-        title: 'Quick Logging',
-        content: 'Regular check-ins with yourself help build self-awareness and identify patterns in your health journey.',
-        source: 'Self-Monitoring Research (2020)'
-      })
+      habit: 'Nutrient Dense',
+      color: 'from-emerald-400 to-teal-500',
+      icon: FiBrain,
+      label: 'Brain Food',
+      description: 'Nutrient tracking',
+      action: () => navigate('/manual-entry')
+    },
+    {
+      habit: 'Self Narrative',
+      color: 'from-pink-400 to-rose-500',
+      icon: FiSmile,
+      label: 'Mindset',
+      description: 'Positive narrative',
+      action: () => navigate('/social')
     }
   ];
 
   return (
     <div className="bg-white rounded-xl p-4 shadow-sm">
-      <h3 className="font-semibold text-gray-800 mb-3">Quick Actions</h3>
-      <div className="grid grid-cols-2 gap-3">
-        {actions.map((action, index) => (
+      <div className="flex items-center justify-between mb-3">
+        <h3 className="font-semibold text-gray-800">Longevity Habits</h3>
+        <span className="text-xs text-gray-500">Brain Renewal</span>
+      </div>
+      <div className="grid grid-cols-3 gap-2">
+        {longevityActions.map((action, index) => (
           <motion.button
             key={index}
             onClick={action.action}
-            className={`${action.color} text-white p-4 rounded-xl flex flex-col items-center space-y-2 hover:opacity-90 transition-opacity`}
+            className={`bg-gradient-to-r ${action.color} text-white p-3 rounded-lg flex flex-col items-center space-y-1 hover:opacity-90 transition-opacity`}
             whileTap={{ scale: 0.95 }}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.1 }}
           >
-            <SafeIcon icon={action.icon} className="w-6 h-6" />
-            <span className="text-sm font-medium">{action.label}</span>
+            <SafeIcon icon={action.icon} className="w-5 h-5" />
+            <span className="text-xs font-bold">{action.label}</span>
+            <span className="text-xs opacity-90">{action.description}</span>
           </motion.button>
         ))}
+      </div>
+
+      {/* Educational Note */}
+      <div className="mt-3 p-2 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-lg border border-purple-100">
+        <p className="text-xs text-purple-700 text-center font-medium">
+          🧠 Six neuroscience-backed habits for biological age reversal and brain renewal
+        </p>
       </div>
     </div>
   );

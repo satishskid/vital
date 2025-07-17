@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import * as FiIcons from 'react-icons/fi';
 import SafeIcon from '../../common/SafeIcon';
 
-const { FiUser, FiSettings, FiHeart, FiTrendingUp, FiAward, FiInfo, FiEdit3, FiLogOut } = FiIcons;
+const { FiUser, FiSettings, FiHeart, FiTrendingUp, FiAward, FiInfo, FiEdit3, FiLogOut, FiSmartphone, FiActivity, FiTool } = FiIcons;
 
 const Profile = () => {
   const [activeTab, setActiveTab] = useState('overview');
+  const navigate = useNavigate();
 
   const userStats = {
     name: 'Anjali Patel',
@@ -80,7 +82,7 @@ const Profile = () => {
 
         {/* Tab Navigation */}
         <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg">
-          {['overview', 'progress', 'achievements', 'settings'].map((tab) => (
+          {['overview', 'progress', 'tools', 'settings'].map((tab) => (
             <motion.button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -245,6 +247,75 @@ const Profile = () => {
                     <div className="text-2xl">🏆</div>
                   </div>
                 ))}
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {activeTab === 'tools' && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="space-y-6"
+          >
+            <div className="bg-white rounded-xl p-6 shadow-sm">
+              <h3 className="font-semibold text-gray-800 mb-4">Health Tools</h3>
+              <div className="space-y-3">
+                <motion.div
+                  onClick={() => navigate('/camera-hrv')}
+                  className="flex items-center space-x-4 p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100"
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <div className="bg-green-100 p-2 rounded-full">
+                    <SafeIcon icon={FiActivity} className="w-5 h-5 text-green-600" />
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="font-medium text-gray-800">HRV Check</h4>
+                    <p className="text-sm text-gray-600">Measure heart rate variability with camera</p>
+                  </div>
+                </motion.div>
+
+                <motion.div
+                  onClick={() => navigate('/health-apps')}
+                  className="flex items-center space-x-4 p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100"
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <div className="bg-blue-100 p-2 rounded-full">
+                    <SafeIcon icon={FiSmartphone} className="w-5 h-5 text-blue-600" />
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="font-medium text-gray-800">Health Apps</h4>
+                    <p className="text-sm text-gray-600">Recommended apps for data collection</p>
+                  </div>
+                </motion.div>
+
+                <motion.div
+                  onClick={() => navigate('/mind-breath')}
+                  className="flex items-center space-x-4 p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100"
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <div className="bg-purple-100 p-2 rounded-full">
+                    <SafeIcon icon={FiHeart} className="w-5 h-5 text-purple-600" />
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="font-medium text-gray-800">Mind & Breath</h4>
+                    <p className="text-sm text-gray-600">Breathing exercises and mindfulness</p>
+                  </div>
+                </motion.div>
+
+                <motion.div
+                  onClick={() => navigate('/activity')}
+                  className="flex items-center space-x-4 p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100"
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <div className="bg-orange-100 p-2 rounded-full">
+                    <SafeIcon icon={FiTrendingUp} className="w-5 h-5 text-orange-600" />
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="font-medium text-gray-800">Activity Tracking</h4>
+                    <p className="text-sm text-gray-600">Detailed activity and movement analysis</p>
+                  </div>
+                </motion.div>
               </div>
             </div>
           </motion.div>

@@ -3,19 +3,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 import * as FiIcons from 'react-icons/fi';
 import SafeIcon from '../../common/SafeIcon';
 import { useAuth } from '../../context/FirebaseAuthContext';
-import VitaSocialCircleManager from '../../services/SocialCircleManager';
-
-const { FiHeart, FiUsers, FiArrowRight, FiCheck, FiUserPlus } = FiIcons;
+const { FiHeart, FiArrowRight, FiCheck } = FiIcons;
 
 const Onboarding = ({ onComplete }) => {
   const { user } = useAuth();
   const [currentStep, setCurrentStep] = useState(0);
   const [selectedGoals, setSelectedGoals] = useState([]);
   const [selectedBarriers, setSelectedBarriers] = useState([]);
-  const [showInviteForm, setShowInviteForm] = useState(false);
-  const [inviteEmail, setInviteEmail] = useState('');
-  const [inviteRelationship, setInviteRelationship] = useState('friend');
-  const [inviteLoading, setInviteLoading] = useState(false);
+
 
   const steps = [
     {
@@ -33,11 +28,7 @@ const Onboarding = ({ onComplete }) => {
       subtitle: 'Help us understand your barriers',
       type: 'barriers'
     },
-    {
-      title: 'Set Up Your Support Circle',
-      subtitle: 'Invite friends and family to join your journey',
-      type: 'support'
-    },
+
     {
       title: 'You\'re All Set!',
       subtitle: 'Ready to start your wellness journey',
@@ -83,33 +74,7 @@ const Onboarding = ({ onComplete }) => {
     );
   };
 
-  const handleInviteFriend = async () => {
-    if (!inviteEmail.trim()) {
-      alert('Please enter an email address');
-      return;
-    }
 
-    setInviteLoading(true);
-    try {
-      const socialManager = new VitaSocialCircleManager(user.uid);
-      await socialManager.addContact({
-        name: inviteEmail.split('@')[0], // Use email prefix as name
-        email: inviteEmail,
-        relationship: inviteRelationship,
-        trackingEnabled: true,
-        privacyLevel: 'standard'
-      });
-
-      alert('Friend invited successfully! They will appear in your support circle once they join.');
-      setInviteEmail('');
-      setShowInviteForm(false);
-    } catch (error) {
-      console.error('Error inviting friend:', error);
-      alert('Failed to send invite. Please try again.');
-    } finally {
-      setInviteLoading(false);
-    }
-  };
 
   const nextStep = () => {
     if (currentStep < steps.length - 1) {
@@ -258,81 +223,7 @@ const Onboarding = ({ onComplete }) => {
 
 
 
-              {steps[currentStep].type === 'support' && (
-                <div className="text-center">
-                  <div className="bg-gradient-to-br from-blue-100 to-purple-100 p-8 rounded-full w-32 h-32 mx-auto mb-8 flex items-center justify-center">
-                    <SafeIcon icon={FiUsers} className="w-16 h-16 text-blue-600" />
-                  </div>
-                  <div className="space-y-4 mb-8">
-                    <p className="text-gray-600">
-                      Invite 1-3 close friends or family members to join your support circle.
-                    </p>
-                    <div className="bg-blue-50 p-4 rounded-lg">
-                      <h3 className="font-semibold text-gray-800 mb-2">Why Support Matters</h3>
-                      <p className="text-sm text-gray-600">
-                        Research shows that people with strong social support are 50% more likely to maintain healthy habits.
-                      </p>
-                    </div>
-                  </div>
 
-                  {!showInviteForm ? (
-                    <motion.button
-                      onClick={() => setShowInviteForm(true)}
-                      className="w-full bg-blue-500 text-white py-3 rounded-lg font-medium mb-4 flex items-center justify-center space-x-2"
-                      whileTap={{ scale: 0.98 }}
-                    >
-                      <SafeIcon icon={FiUserPlus} className="w-5 h-5" />
-                      <span>Invite Friends</span>
-                    </motion.button>
-                  ) : (
-                    <div className="space-y-4 mb-4">
-                      <div className="space-y-3">
-                        <input
-                          type="email"
-                          placeholder="Friend's email address"
-                          value={inviteEmail}
-                          onChange={(e) => setInviteEmail(e.target.value)}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        />
-                        <select
-                          value={inviteRelationship}
-                          onChange={(e) => setInviteRelationship(e.target.value)}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        >
-                          <option value="friend">Friend</option>
-                          <option value="family">Family</option>
-                          <option value="partner">Partner</option>
-                          <option value="close_friend">Close Friend</option>
-                        </select>
-                      </div>
-                      <div className="flex space-x-3">
-                        <motion.button
-                          onClick={handleInviteFriend}
-                          disabled={inviteLoading}
-                          className="flex-1 bg-blue-500 text-white py-3 rounded-lg font-medium disabled:opacity-50"
-                          whileTap={{ scale: 0.98 }}
-                        >
-                          {inviteLoading ? 'Sending...' : 'Send Invite'}
-                        </motion.button>
-                        <motion.button
-                          onClick={() => setShowInviteForm(false)}
-                          className="px-4 py-3 border border-gray-300 rounded-lg text-gray-600"
-                          whileTap={{ scale: 0.98 }}
-                        >
-                          Cancel
-                        </motion.button>
-                      </div>
-                    </div>
-                  )}
-
-                  <button
-                    onClick={nextStep}
-                    className="text-gray-500 text-sm"
-                  >
-                    Skip for now
-                  </button>
-                </div>
-              )}
 
               {steps[currentStep].type === 'complete' && (
                 <div className="text-center">

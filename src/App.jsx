@@ -33,6 +33,8 @@ import SocialWellnessDashboard from './components/Social/SocialWellnessDashboard
 import SocialCircleManager from './components/Social/SocialCircleManager';
 import WelcomeScreen from './components/Welcome/WelcomeScreen';
 import LandingPage from './components/Landing/LandingPage';
+import CircadianTracking from './components/Longevity/CircadianTracking';
+import SleepTracking from './components/Longevity/SleepTracking';
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -277,6 +279,16 @@ function AppContent() {
             <Route path="/social/manage" element={
               <ProtectedRoute>
                 <SocialCircleManager />
+              </ProtectedRoute>
+            } />
+            <Route path="/circadian-tracking" element={
+              <ProtectedRoute>
+                <CircadianTracking />
+              </ProtectedRoute>
+            } />
+            <Route path="/sleep-tracking" element={
+              <ProtectedRoute>
+                <SleepTracking />
               </ProtectedRoute>
             } />
             <Route path="/auth" element={

@@ -323,16 +323,17 @@ class HealthDataService {
 
   /**
    * Get default vitality data when no real data is available
+   * Uses reasonable baseline values to show meaningful vitality state
    */
   getDefaultVitalityData() {
     return {
-      sleep: { duration: 0, quality: 0 },
-      hrv: { readiness: 0 },
-      activity: { steps: 0, activeMinutes: 0 },
-      mindfulness: { sessions: 0 },
-      nutrition: { mealsLogged: 0, waterIntake: 0 },
-      mood: 0,
-      social: { socialWellnessScore: 0 }
+      sleep: { duration: 420, quality: 75 }, // 7 hours, good quality
+      hrv: { readiness: 30 }, // Moderate readiness
+      activity: { steps: 5000, activeMinutes: 20 }, // Moderate activity level
+      mindfulness: { sessions: 0 }, // No mindfulness sessions yet
+      nutrition: { mealsLogged: 2, waterIntake: 6 }, // Some nutrition tracking
+      mood: 3, // Neutral mood (1-5 scale)
+      social: { socialWellnessScore: 50 } // Moderate social wellness
     };
   }
 
