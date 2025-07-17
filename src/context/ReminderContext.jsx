@@ -109,34 +109,18 @@ export const ReminderProvider = ({ children }) => {
     try {
       if (!user) throw new Error('User must be logged in');
       
-      // Mock add if no Supabase connection
-      if (SUPABASE_URL === 'https://<PROJECT-ID>.supabase.co') {
-        const newReminder = {
-          id: `mock-${Date.now()}`,
-          user_id: user.id,
-          ...reminderData,
-          created_at: new Date().toISOString()
-        };
-        setReminders(prev => [...prev, newReminder]);
-        return { data: newReminder, error: null };
-      }
-      
-      // Real Supabase add
-      const { data, error } = await supabase
-        .from('reminders')
-        .insert([
-          {
-            user_id: user.id,
-            ...reminderData,
-            created_at: new Date().toISOString()
-          }
-        ])
-        .select();
-        
-      if (error) throw error;
-      
-      setReminders(prev => [...prev, data[0]]);
-      return { data: data[0], error: null };
+      // Firebase add
+      const newReminder = {
+        user_id: user.uid,
+        ...reminderData,
+        created_at: new Date()
+      };
+
+      const docRef = await addDoc(collection(db, 'reminders'), newReminder);
+      const reminderWithId = { id: docRef.id, ...newReminder };
+
+      setReminders(prev => [...prev, reminderWithId]);
+      return { data: reminderWithId, error: null };
     } catch (error) {
       console.error('Add reminder error:', error);
       return { data: null, error };
@@ -148,35 +132,20 @@ export const ReminderProvider = ({ children }) => {
     try {
       if (!user) throw new Error('User must be logged in');
       
-      // Mock update if no Supabase connection
-      if (SUPABASE_URL === 'https://<PROJECT-ID>.supabase.co') {
-        const updatedReminders = reminders.map(reminder => 
-          reminder.id === id 
-            ? { ...reminder, ...reminderData, updated_at: new Date().toISOString() }
-            : reminder
-        );
-        setReminders(updatedReminders);
-        return { data: updatedReminders.find(r => r.id === id), error: null };
-      }
-      
-      // Real Supabase update
-      const { data, error } = await supabase
-        .from('reminders')
-        .update({
-          ...reminderData,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', id)
-        .eq('user_id', user.id)
-        .select();
-        
-      if (error) throw error;
-      
-      setReminders(prev => 
-        prev.map(reminder => reminder.id === id ? data[0] : reminder)
+      // Firebase update
+      const docRef = doc(db, 'reminders', id);
+      await updateDoc(docRef, {
+        ...reminderData,
+        updated_at: new Date()
+      });
+
+      const updatedReminders = reminders.map(reminder =>
+        reminder.id === id
+          ? { ...reminder, ...reminderData, updated_at: new Date() }
+          : reminder
       );
-      
-      return { data: data[0], error: null };
+      setReminders(updatedReminders);
+      return { data: updatedReminders.find(r => r.id === id), error: null };
     } catch (error) {
       console.error('Update reminder error:', error);
       return { data: null, error };
@@ -188,22 +157,9 @@ export const ReminderProvider = ({ children }) => {
     try {
       if (!user) throw new Error('User must be logged in');
       
-      // Mock delete if no Supabase connection
-      if (SUPABASE_URL === 'https://<PROJECT-ID>.supabase.co') {
-        const updatedReminders = reminders.filter(reminder => reminder.id !== id);
-        setReminders(updatedReminders);
-        return { error: null };
-      }
-      
-      // Real Supabase delete
-      const { error } = await supabase
-        .from('reminders')
-        .delete()
-        .eq('id', id)
-        .eq('user_id', user.id);
-        
-      if (error) throw error;
-      
+      // Firebase delete
+      await deleteDoc(doc(db, 'reminders', id));
+
       setReminders(prev => prev.filter(reminder => reminder.id !== id));
       return { error: null };
     } catch (error) {

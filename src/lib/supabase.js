@@ -1,6 +1,6 @@
 // Firebase configuration
 import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
+import { getAuth, GoogleAuthProvider } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { getAnalytics } from "firebase/analytics";
 
@@ -23,7 +23,13 @@ export const auth = getAuth(app);
 export const db = getFirestore(app);
 export const analytics = getAnalytics(app);
 
+// Initialize Google Auth Provider
+export const googleProvider = new GoogleAuthProvider();
+googleProvider.setCustomParameters({
+  prompt: 'select_account'
+});
+
 console.log('✅ Firebase configured successfully');
 
 // Export default for backward compatibility
-export default { auth, db, analytics };
+export default { auth, db, analytics, googleProvider };

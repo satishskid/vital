@@ -1,7 +1,8 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
-import { 
+import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
+  signInWithPopup,
   signOut,
   onAuthStateChanged,
   sendEmailVerification
@@ -18,7 +19,7 @@ import {
   orderBy,
   limit
 } from 'firebase/firestore';
-import { auth, db } from '../lib/supabase';
+import { auth, db, googleProvider } from '../lib/supabase';
 
 const AuthContext = createContext();
 
@@ -106,6 +107,42 @@ export const AuthProvider = ({ children }) => {
       return { success: true, data: firebaseUser };
     } catch (err) {
       console.error('Error signing in:', err);
+      setError(err.message);
+      return { success: false, error: err.message };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Sign in with Google
+  const signInWithGoogle = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const result = await signInWithPopup(auth, googleProvider);
+      const firebaseUser = result.user;
+
+      // Check if this is a new user and create profile if needed
+      const userDoc = await getDoc(doc(db, 'profiles', firebaseUser.uid));
+
+      if (!userDoc.exists()) {
+        // Create profile for new Google user
+        const profileData = {
+          first_name: firebaseUser.displayName?.split(' ')[0] || '',
+          last_name: firebaseUser.displayName?.split(' ').slice(1).join(' ') || '',
+          email: firebaseUser.email,
+          created_at: new Date(),
+          auth_provider: 'google',
+          goals: []
+        };
+
+        await setDoc(doc(db, 'profiles', firebaseUser.uid), profileData);
+      }
+
+      return { success: true, data: firebaseUser };
+    } catch (err) {
+      console.error('Error signing in with Google:', err);
       setError(err.message);
       return { success: false, error: err.message };
     } finally {
@@ -213,6 +250,7 @@ export const AuthProvider = ({ children }) => {
     error,
     signUp,
     signIn,
+    signInWithGoogle,
     signOut: signOutUser,
     updateProfile,
     saveHealthData,

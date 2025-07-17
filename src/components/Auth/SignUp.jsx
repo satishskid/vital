@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import * as FiIcons from 'react-icons/fi';
+import { FaGoogle } from 'react-icons/fa';
 import { useAuth } from '../../context/FirebaseAuthContext';
 import SafeIcon from '../../common/SafeIcon';
 
@@ -19,7 +20,7 @@ const SignUp = ({ onToggleForm }) => {
   const [success, setSuccess] = useState('');
   const [passwordStrength, setPasswordStrength] = useState(0);
 
-  const { signUp } = useAuth();
+  const { signUp, signInWithGoogle } = useAuth();
   
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -72,6 +73,26 @@ const SignUp = ({ onToggleForm }) => {
       console.error('Registration error:', error);
       setError(error.message || 'Failed to create account. Please try again.');
       setSuccess('');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    setError('');
+    setSuccess('');
+    setLoading(true);
+
+    try {
+      const { data, error } = await signInWithGoogle();
+
+      if (error) throw error;
+
+      // Google sign-in successful
+      console.log('Google sign-in successful', data);
+    } catch (error) {
+      console.error('Google sign-in error:', error);
+      setError(error.message || 'Failed to sign in with Google');
     } finally {
       setLoading(false);
     }
@@ -236,7 +257,29 @@ const SignUp = ({ onToggleForm }) => {
             <SafeIcon icon={FiArrowRight} className="w-5 h-5" />
           )}
         </motion.button>
-        
+
+        {/* Divider */}
+        <div className="relative my-6">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-gray-300" />
+          </div>
+          <div className="relative flex justify-center text-sm">
+            <span className="px-2 bg-white text-gray-500">Or continue with</span>
+          </div>
+        </div>
+
+        {/* Google Sign-In Button */}
+        <motion.button
+          type="button"
+          onClick={handleGoogleSignIn}
+          disabled={loading}
+          className="w-full bg-white border border-gray-300 text-gray-700 py-3 rounded-lg font-semibold flex items-center justify-center space-x-2 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 disabled:opacity-70"
+          whileTap={{ scale: 0.98 }}
+        >
+          <FaGoogle className="w-5 h-5 text-red-500" />
+          <span>Sign up with Google</span>
+        </motion.button>
+
         <div className="text-center mt-4">
           <p className="text-sm text-gray-600">
             Already have an account?{' '}
