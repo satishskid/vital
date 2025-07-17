@@ -4,6 +4,7 @@ import { FiPlus, FiTrendingUp, FiAward, FiBookOpen, FiDownload, FiCalendar, FiSe
 import { useAuth } from '../../context/FirebaseAuthContext';
 // import { reminderSystem } from '../../lib/reminderSystem';
 import HealthDataForm from './HealthDataForm';
+import LongevityHabitsForm from './LongevityHabitsForm';
 import HealthMetricInfo from '../Education/HealthMetricInfo';
 import HealthDataExplanation from '../DataEntry/HealthDataExplanation';
 
@@ -14,7 +15,7 @@ const SafeIcon = ({ icon: Icon, ...props }) => {
 
 const ManualEntryDashboard = () => {
   const { user, getRecentHealthEntries } = useAuth();
-  const [activeTab, setActiveTab] = useState('log_data');
+  const [activeTab, setActiveTab] = useState('longevity_habits');
   const [recentEntries, setRecentEntries] = useState([]);
   const [userStats, setUserStats] = useState({
     currentStreak: 0,
@@ -209,8 +210,8 @@ const ManualEntryDashboard = () => {
           {/* Navigation Tabs */}
           <div className="flex space-x-1 bg-gray-100 rounded-lg p-1">
             {[
-              { id: 'log_data', label: 'Log Data', icon: FiPlus },
-              { id: 'import', label: 'Import Guide', icon: FiDownload },
+              { id: 'longevity_habits', label: 'Longevity Habits', icon: FiAward },
+              { id: 'log_data', label: 'Classic Log', icon: FiPlus },
               { id: 'learn', label: 'Learn', icon: FiBookOpen },
               { id: 'progress', label: 'Progress', icon: FiTrendingUp }
             ].map((tab) => (
@@ -233,6 +234,16 @@ const ManualEntryDashboard = () => {
 
       {/* Content */}
       <div className="max-w-4xl mx-auto px-6 py-8">
+        {activeTab === 'longevity_habits' && (
+          <div className="space-y-6">
+            <div className="text-center mb-6">
+              <h2 className="text-2xl font-bold text-gray-800 mb-2">Six Neuroscience-Backed Longevity Habits</h2>
+              <p className="text-gray-600">Track the habits that reverse biological aging and renew your brain</p>
+            </div>
+            <LongevityHabitsForm onSuccess={handleDataSaved} />
+          </div>
+        )}
+
         {activeTab === 'log_data' && (
           <div className="space-y-6">
             <HealthDataForm onSuccess={handleDataSaved} />
