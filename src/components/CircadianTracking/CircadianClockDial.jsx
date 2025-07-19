@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiSun, FiMoon, FiClock, FiEye, FiEyeOff, FiZap, FiSmile } from 'react-icons/fi';
+import { FiSun, FiMoon, FiClock, FiEye, FiEyeOff, FiZap, FiSmile, FiActivity } from 'react-icons/fi';
 import SafeIcon from '../../common/SafeIcon';
 import SmartFoodLogger from './SmartFoodLogger';
 
