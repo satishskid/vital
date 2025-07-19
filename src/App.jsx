@@ -14,6 +14,8 @@ import ErrorBoundary from './components/ErrorBoundary';
 import AuthScreen from './components/Auth/AuthScreen';
 import Onboarding from './components/Onboarding/Onboarding';
 import Dashboard from './components/Dashboard/Dashboard';
+import SimplifiedDashboard from './components/Dashboard/SimplifiedDashboard';
+import LongevityOnboarding from './components/Onboarding/LongevityOnboarding';
 import HRVCheck from './components/HRV/HRVCheck';
 import MindBreathHub from './components/MindBreath/MindBreathHub';
 import SocialHub from './components/Social/SocialHub';
@@ -27,14 +29,17 @@ import ContextualMessage from './components/Dashboard/ContextualMessage';
 import ManualEntryDashboard from './components/ManualEntry/ManualEntryDashboard';
 import HealthAppsRecommendations from './components/HealthApps/HealthAppsRecommendations';
 import HRVDashboard from './components/HRV/HRVDashboard';
-import ActivityDashboard from './components/Activity/ActivityDashboard';
+
 import TestingDashboard from './components/Testing/TestingDashboard';
 import SocialWellnessDashboard from './components/Social/SocialWellnessDashboard';
 import SocialCircleManager from './components/Social/SocialCircleManager';
 import WelcomeScreen from './components/Welcome/WelcomeScreen';
 import LandingPage from './components/Landing/LandingPage';
-import CircadianTracking from './components/Longevity/CircadianTracking';
-import SleepTracking from './components/Longevity/SleepTracking';
+import CircadianTracking from './components/CircadianTracking/CircadianTracking';
+import HealthMetricsHub from './components/HealthMetrics/HealthMetricsHub';
+import SelfConnectHub from './components/SelfConnect/SelfConnectHub';
+import ClockDialTest from './components/CircadianTracking/ClockDialTest';
+
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -65,13 +70,23 @@ function AppContent() {
   const [showLanding, setShowLanding] = useState(!user);
   const [showWelcome, setShowWelcome] = useState(false);
   const [hasCompletedWelcome, setHasCompletedWelcome] = useState(false);
+  const [showLongevityOnboarding, setShowLongevityOnboarding] = useState(false);
+  const [useSimplifiedDashboard, setUseSimplifiedDashboard] = useState(true);
 
   useEffect(() => {
     const onboarded = localStorage.getItem('vita-onboarded');
     const welcomeCompleted = localStorage.getItem('vita-welcome-completed');
+    const longevityOnboarded = localStorage.getItem('vita-longevity-onboarded');
+    const dashboardPreference = localStorage.getItem('vita-dashboard-preference');
 
     setIsOnboarded(onboarded === 'true');
     setHasCompletedWelcome(welcomeCompleted === 'true');
+    setUseSimplifiedDashboard(dashboardPreference !== 'complex');
+
+    // Show longevity onboarding for new users or those who haven't seen it
+    if (user && !longevityOnboarded) {
+      setShowLongevityOnboarding(true);
+    }
 
     // Show welcome screen for new users after authentication
     if (user && !welcomeCompleted) {
@@ -94,6 +109,12 @@ function AppContent() {
       if (scienceCardTimer) clearTimeout(scienceCardTimer);
     };
   }, [user]);
+
+  // Handle longevity onboarding completion
+  const handleLongevityOnboardingComplete = () => {
+    localStorage.setItem('vita-longevity-onboarded', 'true');
+    setShowLongevityOnboarding(false);
+  };
 
   const scienceCardData = [
     {
@@ -195,6 +216,11 @@ function AppContent() {
     return <WelcomeScreen onComplete={handleWelcomeComplete} />;
   }
 
+  // Show longevity onboarding for users who haven't seen it
+  if (user && showLongevityOnboarding) {
+    return <LongevityOnboarding onComplete={handleLongevityOnboardingComplete} />;
+  }
+
   if (user && !isOnboarded) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-blue-50">
@@ -210,10 +236,16 @@ function AppContent() {
           <Routes>
             <Route path="/" element={
               <ProtectedRoute>
-                <div className="px-6 pt-4">
-                  <ContextualMessage />
-                </div>
-                <Dashboard showWhyCard={showWhyCard} />
+                {useSimplifiedDashboard ? (
+                  <SimplifiedDashboard />
+                ) : (
+                  <>
+                    <div className="px-6 pt-4">
+                      <ContextualMessage />
+                    </div>
+                    <Dashboard showWhyCard={showWhyCard} />
+                  </>
+                )}
               </ProtectedRoute>
             } />
             <Route path="/hrv" element={
@@ -261,19 +293,9 @@ function AppContent() {
                 <HRVDashboard />
               </ProtectedRoute>
             } />
-            <Route path="/activity" element={
-              <ProtectedRoute>
-                <ActivityDashboard />
-              </ProtectedRoute>
-            } />
             <Route path="/testing" element={
               <ProtectedRoute>
                 <TestingDashboard />
-              </ProtectedRoute>
-            } />
-            <Route path="/social" element={
-              <ProtectedRoute>
-                <SocialWellnessDashboard />
               </ProtectedRoute>
             } />
             <Route path="/social/manage" element={
@@ -286,11 +308,17 @@ function AppContent() {
                 <CircadianTracking />
               </ProtectedRoute>
             } />
-            <Route path="/sleep-tracking" element={
+            <Route path="/health-metrics" element={
               <ProtectedRoute>
-                <SleepTracking />
+                <HealthMetricsHub />
               </ProtectedRoute>
             } />
+            <Route path="/self-connect" element={
+              <ProtectedRoute>
+                <SelfConnectHub />
+              </ProtectedRoute>
+            } />
+            <Route path="/clock-test" element={<ClockDialTest />} />
             <Route path="/auth" element={
               user ? <Navigate to="/" replace /> : <AuthScreen />
             } />

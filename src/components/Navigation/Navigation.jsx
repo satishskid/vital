@@ -13,10 +13,9 @@ const Navigation = () => {
   // Navigation aligned with neuroscience-backed longevity habits
   const navItems = [
     { path: '/', icon: FiHome, label: 'Home' },
-    { path: '/manual-entry', icon: FiEdit3, label: 'Log Data' },
-    { path: '/circadian-tracking', icon: FiSun, label: 'Circadian', habit: 'circadian' },
-    { path: '/activity', icon: FiActivity, label: 'Movement', habit: 'movement' },
-    { path: '/social', icon: FiSmile, label: 'Mindset', habit: 'mindset' },
+    { path: '/circadian-tracking', icon: FiSun, label: 'My Health', habit: 'circadian' },
+    { path: '/health-metrics', icon: FiEdit3, label: 'Learn & Log' },
+    { path: '/self-connect', icon: FiSmile, label: 'Self Connect', habit: 'mindset' },
     { path: '/profile', icon: FiUser, label: 'Profile' }
   ];
 

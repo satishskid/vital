@@ -38,10 +38,41 @@ const Profile = () => {
   ];
 
   const settings = [
-    { title: 'Notifications', description: 'Manage your alerts', icon: FiSettings },
-    { title: 'Privacy', description: 'Control your data', icon: FiUser },
-    { title: 'Health Integrations', description: 'Connect apps & devices', icon: FiHeart },
-    { title: 'Goals & Preferences', description: 'Customize your experience', icon: FiTrendingUp }
+    {
+      title: 'Notifications',
+      description: 'Smart nudges & health reminders',
+      icon: FiSettings,
+      action: () => console.log('Opening notification settings'),
+      status: 'Enabled'
+    },
+    {
+      title: 'Privacy & Data',
+      description: 'Local processing, auto-delete options',
+      icon: FiUser,
+      action: () => console.log('Opening privacy settings'),
+      status: 'Secure'
+    },
+    {
+      title: 'Health Sensors',
+      description: 'Phone camera, accelerometer, microphone',
+      icon: FiSmartphone,
+      action: () => console.log('Opening sensor settings'),
+      status: 'Active'
+    },
+    {
+      title: 'Goals & Habits',
+      description: 'Six longevity pillars customization',
+      icon: FiTrendingUp,
+      action: () => console.log('Opening goals settings'),
+      status: 'Configured'
+    },
+    {
+      title: 'Data Export',
+      description: 'Download your health insights',
+      icon: FiInfo,
+      action: () => console.log('Exporting data'),
+      status: 'Available'
+    }
   ];
 
   return (
@@ -290,7 +321,7 @@ const Profile = () => {
                 </motion.div>
 
                 <motion.div
-                  onClick={() => navigate('/mind-breath')}
+                  onClick={() => navigate('/self-connect')}
                   className="flex items-center space-x-4 p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100"
                   whileTap={{ scale: 0.98 }}
                 >
@@ -298,8 +329,22 @@ const Profile = () => {
                     <SafeIcon icon={FiHeart} className="w-5 h-5 text-purple-600" />
                   </div>
                   <div className="flex-1">
-                    <h4 className="font-medium text-gray-800">Mind & Breath</h4>
-                    <p className="text-sm text-gray-600">Breathing exercises and mindfulness</p>
+                    <h4 className="font-medium text-gray-800">Self Connect</h4>
+                    <p className="text-sm text-gray-600">Mindfulness, brain training & inner voice</p>
+                  </div>
+                </motion.div>
+
+                <motion.div
+                  onClick={() => navigate('/health-metrics')}
+                  className="flex items-center space-x-4 p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100"
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <div className="bg-green-100 p-2 rounded-full">
+                    <SafeIcon icon={FiEdit3} className="w-5 h-5 text-green-600" />
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="font-medium text-gray-800">Learn & Log Health Data</h4>
+                    <p className="text-sm text-gray-600">Educational health metrics with manual entry</p>
                   </div>
                 </motion.div>
 
@@ -333,17 +378,27 @@ const Profile = () => {
                 {settings.map((setting, index) => (
                   <motion.div
                     key={index}
-                    className="flex items-center space-x-4 p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100"
+                    onClick={setting.action}
+                    className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors"
                     whileTap={{ scale: 0.98 }}
                   >
                     <div className="bg-indigo-100 p-2 rounded-full">
                       <SafeIcon icon={setting.icon} className="w-5 h-5 text-indigo-600" />
                     </div>
                     <div className="flex-1">
-                      <h4 className="font-medium text-gray-800">{setting.title}</h4>
+                      <div className="flex items-center justify-between mb-1">
+                        <h4 className="font-medium text-gray-800">{setting.title}</h4>
+                        <span className={`text-xs px-2 py-1 rounded-full ${
+                          setting.status === 'Enabled' || setting.status === 'Active' || setting.status === 'Secure'
+                            ? 'bg-green-100 text-green-600'
+                            : 'bg-blue-100 text-blue-600'
+                        }`}>
+                          {setting.status}
+                        </span>
+                      </div>
                       <p className="text-sm text-gray-600">{setting.description}</p>
                     </div>
-                    <SafeIcon icon={FiInfo} className="w-5 h-5 text-gray-400" />
+                    <SafeIcon icon={FiInfo} className="w-4 h-4 text-gray-400" />
                   </motion.div>
                 ))}
               </div>

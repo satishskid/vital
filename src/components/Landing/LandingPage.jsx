@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { FiHeart, FiShield, FiZap, FiUsers, FiStar, FiArrowRight, FiPlay, FiCheck, FiMoon, FiSun, FiActivity } from 'react-icons/fi';
+import { FiHeart, FiShield, FiZap, FiUsers, FiStar, FiArrowRight, FiPlay, FiCheck, FiMoon, FiSun, FiActivity, FiSmile } from 'react-icons/fi';
 import SafeIcon from '../../common/SafeIcon';
 
 const LandingPage = ({ onGetStarted, onSignIn }) => {
@@ -183,12 +183,12 @@ const LandingPage = ({ onGetStarted, onSignIn }) => {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[
-              { icon: FiMoon, title: 'Recovery', color: 'from-yellow-400 to-orange-500' },
-              { icon: FiActivity, title: 'Movement', color: 'from-green-400 to-emerald-500' },
-              { icon: FiHeart, title: 'Nutrition', color: 'from-red-400 to-pink-500' },
-              { icon: FiSun, title: 'Mindfulness', color: 'from-purple-400 to-indigo-500' },
-              { icon: FiZap, title: 'Hydration', color: 'from-blue-400 to-cyan-500' },
-              { icon: FiUsers, title: 'Connection', color: 'from-pink-400 to-rose-500' }
+              { icon: FiSun, title: 'Light & Timing', color: 'from-yellow-400 to-orange-500' },
+              { icon: FiActivity, title: 'Move & Think', color: 'from-green-400 to-emerald-500' },
+              { icon: FiZap, title: 'Stress & Recover', color: 'from-red-400 to-pink-500' },
+              { icon: FiMoon, title: 'Brain Detox', color: 'from-indigo-400 to-purple-500' },
+              { icon: FiHeart, title: 'Brain Food', color: 'from-green-400 to-teal-500' },
+              { icon: FiSmile, title: 'Mindset', color: 'from-pink-400 to-rose-500' }
             ].map((pillar, index) => (
               <motion.div
                 key={pillar.title}

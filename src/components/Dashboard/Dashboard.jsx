@@ -7,7 +7,7 @@ import ProgressRing from './ProgressRing';
 import PeerTicker from './PeerTicker';
 import PeerAvatars from './PeerAvatars';
 import QuickActions from './QuickActions';
-import VitalityOrbHome from '../VitalityOrb/VitalityOrbHome';
+import BiologicalAgeVisualization from '../BiologicalAge/BiologicalAgeVisualization';
 import HealthDataService from '../../services/HealthDataService';
 import PodcastSnippetService from '../../services/PodcastSnippetService';
 import PodcastModal from '../Audio/PodcastModal';
@@ -260,16 +260,41 @@ const Dashboard = ({ showWhyCard }) => {
     }
   };
 
-  // CONDITIONAL RENDERING - If Vitality theme is enabled, render the Vitality Orb home
+  // CONDITIONAL RENDERING - If Vitality theme is enabled, render the Biological Age visualization
   if (isVitalityTheme) {
     return (
-      <VitalityOrbHome
-        healthData={getHealthDataForOrb()}
-        onThemeToggle={toggleTheme}
-        onRefresh={refreshData}
-        onOpenPodcast={handleOpenPodcast}
-        loading={loading}
-      />
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 to-indigo-50">
+        {/* Header */}
+        <div className="bg-gradient-to-r from-purple-400 to-indigo-500 text-white p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-bold">Your Longevity Journey</h1>
+              <p className="text-purple-100">Neuroscience-backed biological age optimization</p>
+            </div>
+            <button
+              onClick={toggleTheme}
+              className="bg-white bg-opacity-20 p-2 rounded-full hover:bg-opacity-30 transition-colors"
+            >
+              <SafeIcon icon={FiSettings} className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+
+        {/* Content */}
+        <div className="p-6 space-y-6">
+          <BiologicalAgeVisualization showDetails={true} />
+          <QuickActions showWhyCard={showWhyCard} />
+        </div>
+
+        {/* Podcast Modal */}
+        {showPodcastPlayer && (
+          <PodcastModal
+            isOpen={showPodcastPlayer}
+            onClose={() => setShowPodcastPlayer(false)}
+            podcastInfo={podcastInfo}
+          />
+        )}
+      </div>
     );
   }
 

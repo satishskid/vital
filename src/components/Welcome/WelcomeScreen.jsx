@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiPlay, FiPause, FiArrowRight, FiHeart, FiSun, FiMoon, FiActivity, FiDroplet, FiUsers, FiShield, FiInfo } from 'react-icons/fi';
+import { FiPlay, FiPause, FiArrowRight, FiHeart, FiSun, FiMoon, FiActivity, FiZap, FiSmile, FiShield, FiInfo } from 'react-icons/fi';
 import SafeIcon from '../../common/SafeIcon';
 import PodcastPlayer from '../Audio/PodcastPlayer';
 
@@ -23,8 +23,8 @@ const WelcomeScreen = ({ onComplete }) => {
     },
     {
       id: 'pillars',
-      title: 'Your Six Vitality Pillars',
-      subtitle: 'The foundation of your wellness transformation'
+      title: 'Six Neuroscience-Backed Longevity Habits',
+      subtitle: 'Brain renewal and biological age reversal through science'
     },
     {
       id: 'ready',
@@ -35,49 +35,49 @@ const WelcomeScreen = ({ onComplete }) => {
 
   const sixPillars = [
     {
-      icon: FiMoon,
-      title: 'Recovery',
-      description: 'Quality sleep and stress management',
+      icon: FiSun,
+      title: 'Light & Timing',
+      description: 'Circadian rhythm optimization',
       color: 'from-yellow-400 to-orange-500',
       bgColor: 'bg-yellow-50',
       textColor: 'text-yellow-700'
     },
     {
       icon: FiActivity,
-      title: 'Movement',
-      description: 'Physical activity and exercise',
+      title: 'Move & Think',
+      description: 'Cognitive movement',
       color: 'from-green-400 to-emerald-500',
       bgColor: 'bg-green-50',
       textColor: 'text-green-700'
     },
     {
-      icon: FiHeart,
-      title: 'Nutrition',
-      description: 'Mindful eating and nourishment',
+      icon: FiZap,
+      title: 'Stress & Recover',
+      description: 'HRV resilience',
       color: 'from-red-400 to-pink-500',
       bgColor: 'bg-red-50',
       textColor: 'text-red-700'
     },
     {
-      icon: FiSun,
-      title: 'Mindfulness',
-      description: 'Mental clarity and emotional balance',
-      color: 'from-purple-400 to-indigo-500',
+      icon: FiMoon,
+      title: 'Brain Detox',
+      description: 'Sleep optimization',
+      color: 'from-indigo-400 to-purple-500',
       bgColor: 'bg-purple-50',
       textColor: 'text-purple-700'
     },
     {
-      icon: FiDroplet,
-      title: 'Hydration',
-      description: 'Optimal fluid balance and cellular health',
-      color: 'from-blue-400 to-cyan-500',
-      bgColor: 'bg-blue-50',
-      textColor: 'text-blue-700'
+      icon: FiHeart,
+      title: 'Brain Food',
+      description: 'Nutrient tracking',
+      color: 'from-green-400 to-teal-500',
+      bgColor: 'bg-green-50',
+      textColor: 'text-green-700'
     },
     {
-      icon: FiUsers,
-      title: 'Connection',
-      description: 'Social wellness and community',
+      icon: FiSmile,
+      title: 'Mindset',
+      description: 'Positive narrative',
       color: 'from-pink-400 to-rose-500',
       bgColor: 'bg-pink-50',
       textColor: 'text-pink-700'
@@ -240,9 +240,9 @@ const WelcomeScreen = ({ onComplete }) => {
         animate={{ opacity: 1, y: 0 }}
         className="mb-8"
       >
-        <h2 className="text-3xl font-bold text-gray-800 mb-4">Your Six Vitality Pillars</h2>
+        <h2 className="text-3xl font-bold text-gray-800 mb-4">Six Neuroscience-Backed Longevity Habits</h2>
         <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
-          Vita tracks and optimizes these six interconnected aspects of your health, creating a comprehensive picture of your vitality.
+          Each habit is scientifically proven to optimize brain function and reverse biological aging through neuroplasticity.
         </p>
       </motion.div>
 
@@ -265,10 +265,10 @@ const WelcomeScreen = ({ onComplete }) => {
       </div>
 
       <div className="bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg p-6 max-w-3xl mx-auto">
-        <h3 className="font-semibold text-gray-800 mb-2">The Vita Difference</h3>
+        <h3 className="font-semibold text-gray-800 mb-2">The Brain Renewal Approach</h3>
         <p className="text-gray-700 text-sm">
-          Unlike apps that focus on single metrics, Vita understands that true vitality comes from the synergy 
-          between all six pillars. Your personalized vitality score reflects this holistic approach.
+          Unlike health trackers, Vita focuses on brain renewal and biological age reversal. Each habit creates
+          positive feedback loops that compound over time, keeping your biological age behind your chronological age.
         </p>
       </div>
     </div>
@@ -284,9 +284,9 @@ const WelcomeScreen = ({ onComplete }) => {
         <div className="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center">
           <SafeIcon icon={FiArrowRight} className="w-12 h-12 text-white" />
         </div>
-        <h2 className="text-3xl font-bold text-gray-800 mb-4">Ready to Begin Your Journey?</h2>
+        <h2 className="text-3xl font-bold text-gray-800 mb-4">Ready to Begin Brain Renewal?</h2>
         <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
-          You now understand the science and pillars behind Vita. Let's set up your personalized vitality tracking.
+          You now understand the neuroscience behind longevity. Let's start optimizing your biological age through habit formation.
         </p>
       </motion.div>
 

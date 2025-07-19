@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import * as FiIcons from 'react-icons/fi';
 import SafeIcon from '../../common/SafeIcon';
 
-const { FiSun, FiActivity, FiZap, FiMoon, FiBrain, FiSmile, FiEdit3 } = FiIcons;
+const { FiSun, FiActivity, FiZap, FiMoon, FiHeart, FiSmile, FiEdit3 } = FiIcons;
 
 const QuickActions = ({ showWhyCard }) => {
   const navigate = useNavigate();
@@ -25,7 +25,7 @@ const QuickActions = ({ showWhyCard }) => {
       icon: FiActivity,
       label: 'Move & Think',
       description: 'Cognitive movement',
-      action: () => navigate('/activity')
+      action: () => navigate('/circadian-tracking')
     },
     {
       habit: 'Controlled Stress',
@@ -33,7 +33,7 @@ const QuickActions = ({ showWhyCard }) => {
       icon: FiZap,
       label: 'Stress & Recover',
       description: 'HRV resilience',
-      action: () => navigate('/camera-hrv')
+      action: () => navigate('/circadian-tracking')
     },
     {
       habit: 'Quality Sleep',
@@ -41,15 +41,15 @@ const QuickActions = ({ showWhyCard }) => {
       icon: FiMoon,
       label: 'Brain Detox',
       description: 'Sleep optimization',
-      action: () => navigate('/sleep-tracking')
+      action: () => navigate('/circadian-tracking')
     },
     {
       habit: 'Nutrient Dense',
       color: 'from-emerald-400 to-teal-500',
-      icon: FiBrain,
+      icon: FiHeart,
       label: 'Brain Food',
       description: 'Nutrient tracking',
-      action: () => navigate('/manual-entry')
+      action: () => navigate('/circadian-tracking')
     },
     {
       habit: 'Self Narrative',
@@ -57,7 +57,7 @@ const QuickActions = ({ showWhyCard }) => {
       icon: FiSmile,
       label: 'Mindset',
       description: 'Positive narrative',
-      action: () => navigate('/social')
+      action: () => navigate('/circadian-tracking')
     }
   ];
 
